@@ -11,7 +11,7 @@ export default function GraduateRegister(props: GraduateRegisterProps) {
     <section id="register" className="section grad-register">
       <div className="section-inner planner-grid">
         <div className="planner-intro">
-          <p className="eyebrow">Register your interest</p>
+          <p className="eyebrow">Apply now</p>
           <h2>Take the first step towards a clear plan</h2>
           <p>
             Tell us a little about yourself and where you are. Once your details are saved,

@@ -13,7 +13,7 @@ export default function GraduateHero() {
             direction, relevant skills and an actionable plan.
           </p>
           <div className="hero-ctas">
-            <a href="#register" className="btn btn-gold btn-lg">Register your interest</a>
+            <a href="#register" className="btn btn-gold btn-lg">Apply now</a>
             <a href="#included" className="btn btn-outline-light btn-lg">What’s included</a>
           </div>
         </div>

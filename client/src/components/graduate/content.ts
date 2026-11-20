@@ -55,3 +55,26 @@ export const STAGES = [
 ] as const;
 
 export const COUNTRIES = ['Nigeria', 'Ghana', 'Kenya', 'South Africa', 'United Kingdom', 'United States', 'Canada'];
+
+export const FAQS = [
+  {
+    q: 'Who can participate?',
+    a: 'Final-year university students and recent graduates who want guidance in preparing for their next phase.',
+  },
+  {
+    q: 'Is this only for graduates seeking employment?',
+    a: 'No. The programme also supports participants exploring entrepreneurship, further education, skills development or other meaningful pathways.',
+  },
+  {
+    q: 'Will I receive personalised support?',
+    a: 'Yes. The programme includes individual assessment, coaching, planning and accountability.',
+  },
+  {
+    q: 'Will the programme guarantee me a job?',
+    a: 'No. The programme focuses on building clarity, readiness, relevant skills and the capacity to pursue opportunities intentionally.',
+  },
+  {
+    q: 'How can I join?',
+    a: 'Select Apply now at the top of this page, or scroll to the registration form. Fill in your details, then send them to us on WhatsApp to complete your application.',
+  },
+];
