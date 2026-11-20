@@ -1,8 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 
-const PROGRAMMES = [
-  { href: '/cgpa-mentorship/', label: 'CGPA Mentorship', note: 'Mentorship for students' },
-  { href: '/cgpa-mentorship/#mentors', label: 'Become a mentor', note: 'Call for CGPA mentors' },
+interface MenuItem {
+  href: string;
+  label: string;
+  note: string;
+  /** Shown in a side panel on hover/focus (desktop), indented underneath on mobile. */
+  children?: MenuItem[];
+}
+
+const PROGRAMMES: MenuItem[] = [
+  {
+    href: '/cgpa-mentorship/',
+    label: 'CGPA Mentorship',
+    note: 'Mentorship for students',
+    children: [
+      { href: '/cgpa-mentorship/#mentors', label: 'Become a mentor', note: 'Call for CGPA mentors' },
+    ],
+  },
   { href: '/exam-preparation/', label: 'Exam Preparation', note: 'WAEC, NECO, JAMB, IELTS and more' },
   { href: '/graduate-clarity/', label: 'Graduate Clarity Programme', note: 'For final-year students and graduates' },
   { href: '/school-partnership/', label: 'School Partnership', note: 'For schools and universities' },
@@ -90,7 +104,7 @@ export default function Nav({
               </button>
               <ul className="nav-submenu" id="nav-programmes">
                 {PROGRAMMES.map((p) => (
-                  <li key={p.href}>
+                  <li key={p.href} className={p.children ? 'has-flyout' : undefined}>
                     <a
                       href={p.href}
                       aria-current={p.href === current ? 'page' : undefined}
@@ -98,7 +112,20 @@ export default function Nav({
                     >
                       <span className="nav-submenu-label">{p.label}</span>
                       <span className="nav-submenu-note">{p.note}</span>
+                      {p.children && <span className="nav-flyout-arrow" aria-hidden="true" />}
                     </a>
+                    {p.children && (
+                      <ul className="nav-flyout" aria-label={`More in ${p.label}`}>
+                        {p.children.map((c) => (
+                          <li key={c.href}>
+                            <a href={c.href} onClick={closeAll}>
+                              <span className="nav-submenu-label">{c.label}</span>
+                              <span className="nav-submenu-note">{c.note}</span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </li>
                 ))}
               </ul>
