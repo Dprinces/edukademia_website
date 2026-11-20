@@ -12,6 +12,12 @@ const QUICK_LINKS = [
     meta: 'WAEC, NECO, JAMB and English tests',
   },
   {
+    href: '/graduate-clarity/',
+    audience: 'For final-year students and graduates',
+    title: 'Graduate Clarity Programme',
+    meta: 'Clear direction for life after university',
+  },
+  {
     href: '/school-partnership/',
     audience: 'For schools and universities',
     title: 'School Partnership',

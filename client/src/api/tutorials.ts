@@ -1,3 +1,5 @@
+import { isSheetConfigured, saveToSheet } from './sheets';
+
 export interface TutorialEnquiry {
   fullName: string;
   phone: string;
@@ -14,20 +16,7 @@ export interface TutorialEnquiry {
   website: string;
 }
 
-const SHEET_URL = import.meta.env.VITE_TUTORIALS_SHEET_URL?.trim();
 const USE_API = import.meta.env.VITE_TUTORIALS_USE_API === 'true';
-
-/** Appends the registration to the Google Sheet via the Apps Script web app. */
-async function saveToSheet(url: string, data: TutorialEnquiry) {
-  // text/plain keeps this a "simple" request, so no CORS preflight (which Apps Script can't answer).
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(data),
-  });
-  const result = (await res.json().catch(() => null)) as { ok?: boolean } | null;
-  if (!res.ok || !result?.ok) throw new Error('sheet-save-failed');
-}
 
 async function saveToApi(data: TutorialEnquiry) {
   const res = await fetch('/api/tutorials/enquiry', {
@@ -43,20 +32,11 @@ async function saveToApi(data: TutorialEnquiry) {
  * the API copy is optional and never blocks the visitor when the sheet succeeds.
  */
 export async function submitTutorialRegistration(data: TutorialEnquiry) {
-  if (SHEET_URL) {
-    await saveToSheet(SHEET_URL, data);
-    if (USE_API) saveToApi(data).catch(() => { /* secondary copy */ });
-    return;
-  }
-
-  if (USE_API) {
+  if (USE_API && !isSheetConfigured) {
     await saveToApi(data);
     return;
   }
 
-  if (import.meta.env.DEV) {
-    console.warn('VITE_TUTORIALS_SHEET_URL is not set; registration was not saved (development only).');
-    return;
-  }
-  throw new Error('not-configured');
+  await saveToSheet('tutorials', data);
+  if (USE_API) saveToApi(data).catch(() => { /* secondary copy */ });
 }

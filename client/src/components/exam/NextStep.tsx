@@ -9,7 +9,10 @@ export default function NextStep() {
           <p>
             Edukademia supports students beyond their entrance exams. Start university
             with our free Academic Success Starter Guide, and join the CGPA Mentorship
-            Programme for guidance, structure and accountability once you are there.
+            Programme for guidance, structure and accountability once you are there. And
+            when graduation comes, our{' '}
+            <a href="/graduate-clarity/">Graduate Next-Phase Clarity Programme</a> helps you
+            plan what comes next.
           </p>
         </div>
         <div className="next-links">

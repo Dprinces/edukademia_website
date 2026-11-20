@@ -39,6 +39,25 @@ const PATHS = [
     primary: false,
   },
   {
+    tag: 'For final-year students and graduates',
+    title: 'Graduate Next-Phase Clarity Programme',
+    body:
+      'Structured coaching that helps you move from university into the next phase of your ' +
+      'life, with clear direction and a practical plan.',
+    items: [
+      'Graduate Next-Phase Assessment and one-on-one debrief',
+      'Purpose and career-clarity coaching session',
+      'Purpose-Alignment Workbook',
+      'CV and opportunity review',
+      'Personal 30-day action plan with weekly accountability',
+    ],
+    img: '/cgpa/cgpa-mentorship-conversation.jpg',
+    alt: 'A coach reviewing plans with a student',
+    href: '/graduate-clarity/',
+    cta: 'View the programme',
+    primary: false,
+  },
+  {
     tag: 'For schools and universities',
     title: 'Institutional Partnership',
     body:
@@ -67,8 +86,8 @@ export default function Paths() {
           <p className="eyebrow">Programmes</p>
           <h2>Support at every stage</h2>
           <p>
-            From secondary-school exams to university results, for individual
-            students and for whole institutions.
+            From secondary-school exams to university results and life after
+            graduation, for individual students and for whole institutions.
           </p>
         </div>
 

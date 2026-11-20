@@ -10,13 +10,14 @@ client/          React + TypeScript + Vite (multi-page static site)
   index.html               Home
   cgpa-mentorship/         CGPA Mentorship programme
   exam-preparation/        WAEC, NECO, JAMB and English language exam tutorials
+  graduate-clarity/        Graduate Next-Phase Clarity Programme
   school-partnership/      School partnership + enquiry form
   policies/                Refund, privacy, certificate and participation policies
   public/                  Images, video, logo, favicon
 server/          Express + MongoDB API (enquiries, free-guide downloads)
   assets/                  Free guide PDF (served only after the guide form)
 integrations/
-  google-sheets/           Apps Script that saves exam-preparation registrations to a Google Sheet
+  google-sheets/           Apps Script that saves the exam and graduate forms to a Google Sheet
 ```
 
 ## Getting started
@@ -46,7 +47,7 @@ Run one side only with `npm run dev -w client` or `npm run dev -w server`.
 
 | Variable | Purpose |
 | --- | --- |
-| `VITE_TUTORIALS_SHEET_URL` | Apps Script web app URL for exam registrations ([setup](integrations/google-sheets/README.md)) |
+| `VITE_FORMS_SHEET_URL` | Apps Script web app URL for the exam and graduate forms ([setup](integrations/google-sheets/README.md)) |
 | `VITE_TUTORIALS_USE_API` | `true` to also save exam registrations through the API |
 
 Never commit `.env` files. They are ignored by `.gitignore`.
@@ -64,7 +65,7 @@ Cloudflare Pages or similar. The API must be hosted separately and reachable at 
 - School partnership enquiry form
 - Free guide download on the CGPA page
 
-Exam-preparation registrations work without the API once `VITE_TUTORIALS_SHEET_URL` is set.
+The exam-preparation and graduate-clarity forms work without the API once `VITE_FORMS_SHEET_URL` is set.
 
 ## Content
 

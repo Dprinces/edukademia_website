@@ -4,6 +4,7 @@ const PROGRAMMES = [
   { href: '/cgpa-mentorship/', label: 'CGPA Mentorship', note: 'Mentorship for students' },
   { href: '/cgpa-mentorship/#mentors', label: 'Become a mentor', note: 'Call for CGPA mentors' },
   { href: '/exam-preparation/', label: 'Exam Preparation', note: 'WAEC, NECO, JAMB, IELTS and more' },
+  { href: '/graduate-clarity/', label: 'Graduate Clarity Programme', note: 'For final-year students and graduates' },
   { href: '/school-partnership/', label: 'School Partnership', note: 'For schools and universities' },
 ];
 
