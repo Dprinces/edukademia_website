@@ -211,7 +211,7 @@ export default function RegistrationForm() {
           <div className={fieldClass('fullName')}>
             <label htmlFor="reg-fullName">Full name <span className="req">*</span></label>
             <input
-              id="reg-fullName" type="text" autoComplete="name" value={form.fullName}
+              id="reg-fullName" type="text" autoComplete="name" placeholder="e.g. Ada Okafor" value={form.fullName}
               onChange={(e) => set('fullName', e.target.value)}
               aria-invalid={Boolean(describedBy('fullName')) || undefined} aria-describedby={describedBy('fullName')}
             />
@@ -229,7 +229,7 @@ export default function RegistrationForm() {
           <div className={fieldClass('email')}>
             <label htmlFor="reg-email">Email address <span className="req">*</span></label>
             <input
-              id="reg-email" type="email" autoComplete="email" value={form.email}
+              id="reg-email" type="email" autoComplete="email" placeholder="e.g. ada@example.com" value={form.email}
               onChange={(e) => set('email', e.target.value)}
               aria-invalid={Boolean(describedBy('email')) || undefined} aria-describedby={describedBy('email')}
             />
@@ -238,7 +238,7 @@ export default function RegistrationForm() {
           <div className={fieldClass('country')}>
             <label htmlFor="reg-country">Country <span className="req">*</span></label>
             <input
-              id="reg-country" type="text" autoComplete="country-name" list="reg-country-list" value={form.country}
+              id="reg-country" type="text" autoComplete="country-name" placeholder="e.g. Nigeria" list="reg-country-list" value={form.country}
               onChange={(e) => set('country', e.target.value)}
               aria-invalid={Boolean(describedBy('country')) || undefined} aria-describedby={describedBy('country')}
             />

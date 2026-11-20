@@ -140,7 +140,7 @@ export default function FreeGuide() {
                   <div className={invalid('fullName')}>
                     <label htmlFor="guide-fullName">Full name <span className="req">*</span></label>
                     <input
-                      id="guide-fullName" name="fullName" type="text" autoComplete="name"
+                      id="guide-fullName" name="fullName" type="text" autoComplete="name" placeholder="e.g. Ada Okafor"
                       value={form.fullName} onChange={update}
                       aria-invalid={Boolean(showErrors && errors.fullName) || undefined}
                       aria-describedby={showErrors && errors.fullName ? 'guide-fullName-error' : undefined}
@@ -151,7 +151,7 @@ export default function FreeGuide() {
                   <div className={invalid('email')}>
                     <label htmlFor="guide-email">Email address <span className="req">*</span></label>
                     <input
-                      id="guide-email" name="email" type="email" autoComplete="email"
+                      id="guide-email" name="email" type="email" autoComplete="email" placeholder="e.g. ada@example.com"
                       value={form.email} onChange={update}
                       aria-invalid={Boolean(showErrors && errors.email) || undefined}
                       aria-describedby={showErrors && errors.email ? 'guide-email-error' : undefined}
@@ -162,7 +162,7 @@ export default function FreeGuide() {
                   <div className="field">
                     <label htmlFor="guide-phone">WhatsApp number <span className="optional">(optional)</span></label>
                     <input
-                      id="guide-phone" name="phone" type="tel" autoComplete="tel"
+                      id="guide-phone" name="phone" type="tel" autoComplete="tel" placeholder="e.g. +234 801 234 5678"
                       value={form.phone} onChange={update}
                     />
                   </div>

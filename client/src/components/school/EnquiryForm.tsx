@@ -144,13 +144,13 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
               <div className="form-grid">
                 <div className={fieldClass('schoolName', true)}>
                   <label htmlFor="enq-schoolName">Institution name <span className="req">*</span></label>
-                  <input type="text" autoComplete="organization" {...fieldProps('schoolName')} />
+                  <input type="text" autoComplete="organization" placeholder="e.g. Greenfield College" {...fieldProps('schoolName')} />
                   {error('schoolName')}
                 </div>
 
                 <div className={fieldClass('contactName')}>
                   <label htmlFor="enq-contactName">Contact person <span className="req">*</span></label>
-                  <input type="text" autoComplete="name" {...fieldProps('contactName')} />
+                  <input type="text" autoComplete="name" placeholder="e.g. Ada Okafor" {...fieldProps('contactName')} />
                   {error('contactName')}
                 </div>
 
@@ -162,13 +162,13 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
 
                 <div className={fieldClass('email')}>
                   <label htmlFor="enq-email">Email address <span className="req">*</span></label>
-                  <input type="email" autoComplete="email" {...fieldProps('email')} />
+                  <input type="email" autoComplete="email" placeholder="e.g. ada@greenfield.edu.ng" {...fieldProps('email')} />
                   {error('email')}
                 </div>
 
                 <div className={fieldClass('phone')}>
                   <label htmlFor="enq-phone">Phone number <span className="req">*</span></label>
-                  <input type="tel" autoComplete="tel" {...fieldProps('phone')} />
+                  <input type="tel" autoComplete="tel" placeholder="e.g. +234 801 234 5678" {...fieldProps('phone')} />
                   {error('phone')}
                 </div>
 

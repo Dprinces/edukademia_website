@@ -146,7 +146,7 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
         <div className="form-grid">
           <div className={invalid('fullName') ? 'field invalid' : 'field'}>
             <label htmlFor="grad-fullName">Full name <span className="req">*</span></label>
-            <input id="grad-fullName" type="text" autoComplete="name" value={form.fullName}
+            <input id="grad-fullName" type="text" autoComplete="name" placeholder="e.g. Ada Okafor" value={form.fullName}
               onChange={(e) => set('fullName', e.target.value)} {...aria('fullName')} />
             {err('fullName')}
           </div>
@@ -158,13 +158,13 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
           </div>
           <div className={invalid('email') ? 'field invalid' : 'field'}>
             <label htmlFor="grad-email">Email address <span className="req">*</span></label>
-            <input id="grad-email" type="email" autoComplete="email" value={form.email}
+            <input id="grad-email" type="email" autoComplete="email" placeholder="e.g. ada@example.com" value={form.email}
               onChange={(e) => set('email', e.target.value)} {...aria('email')} />
             {err('email')}
           </div>
           <div className={invalid('country') ? 'field invalid' : 'field'}>
             <label htmlFor="grad-country">Country <span className="req">*</span></label>
-            <input id="grad-country" type="text" autoComplete="country-name" list="grad-country-list" value={form.country}
+            <input id="grad-country" type="text" autoComplete="country-name" placeholder="e.g. Nigeria" list="grad-country-list" value={form.country}
               onChange={(e) => set('country', e.target.value)} {...aria('country')} />
             <datalist id="grad-country-list">
               {COUNTRIES.map((c) => <option key={c} value={c} />)}
@@ -188,12 +188,12 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
         <div className="form-grid grad-study">
           <div className="field">
             <label htmlFor="grad-institution">University or institution <span className="optional">(optional)</span></label>
-            <input id="grad-institution" type="text" autoComplete="organization" value={form.institution}
+            <input id="grad-institution" type="text" autoComplete="organization" placeholder="e.g. University of Lagos" value={form.institution}
               onChange={(e) => set('institution', e.target.value)} />
           </div>
           <div className="field">
             <label htmlFor="grad-course">Course of study <span className="optional">(optional)</span></label>
-            <input id="grad-course" type="text" value={form.course}
+            <input id="grad-course" type="text" placeholder="e.g. Economics" value={form.course}
               onChange={(e) => set('course', e.target.value)} />
           </div>
           <div className="field">
