@@ -23,6 +23,7 @@
   list-style: none;
   display: flex;
   flex-wrap: wrap;
+  gap: 8px 20px;
   margin-top: 40px;
   padding-top: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
@@ -30,10 +31,32 @@
   color: rgba(255, 255, 255, 0.72);
 }
 
-.cgpa-pillars li + li::before {
-  content: '·';
-  margin: 0 12px;
-  color: var(--gold);
+.cgpa-pillars li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cgpa-pillars li::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+@media (max-width: 960px) {
+  .cgpa-hero-media img {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .cgpa-pillars {
+    margin-top: 28px;
+    padding-top: 18px;
+  }
 }
 
 /* ---------- Free guide ---------- */

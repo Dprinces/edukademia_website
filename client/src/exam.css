@@ -22,6 +22,24 @@
   padding: 16px 18px 18px;
 }
 
+@media (max-width: 960px) {
+  .exam-hero-visual {
+    margin-left: 0;
+  }
+
+  .exam-quick {
+    left: auto;
+    width: auto;
+  }
+}
+
+@media (max-width: 960px) {
+  .exam-hero-visual img {
+    aspect-ratio: 4 / 3;
+    object-position: center 18%;
+  }
+}
+
 /* ---------- Next step (university) ---------- */
 
 .exam-next {

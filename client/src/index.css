@@ -1468,6 +1468,76 @@ a {
 }
 
 /* =====================================================
+   HERO ON TABLETS AND PHONES (all pages)
+   ===================================================== */
+
+@media (max-width: 960px) {
+  .hero {
+    padding-top: 64px;
+    padding-bottom: 72px;
+  }
+
+  /* Wider, shorter crop once the hero is a single column, so the photo doesn't fill the screen. */
+  .hero-visual img {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding: 40px 16px 48px;
+  }
+
+  .hero .eyebrow {
+    font-size: 0.75rem;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.875rem, 8.5vw, 2.25rem);
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .hero-lede {
+    font-size: 1rem;
+    margin-bottom: 24px;
+  }
+
+  /* Equal, full-width buttons are easier to tap than mismatched pairs. */
+  .hero-ctas {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hero-ctas .btn {
+    width: 100%;
+  }
+
+  .hero-inner.has-visual {
+    gap: 32px;
+  }
+
+  .hero-visual {
+    max-width: none;
+  }
+
+  .hero-overlay {
+    margin: -28px 12px 0;
+    padding: 16px 18px;
+  }
+
+  /* Home "Our programmes" card: names and audiences are enough on a small screen. */
+  .quick-links a {
+    padding: 9px 30px 9px 10px;
+  }
+
+  .quick-link-meta {
+    display: none;
+  }
+}
+
+/* =====================================================
    RESPONSIVE
    ===================================================== */
 
@@ -1665,7 +1735,6 @@ a {
     padding: 0 16px;
   }
 
-  .hero,
   .section {
     padding: 64px 16px;
   }
