@@ -4,23 +4,11 @@ import { evaluate, type CgpaInputs, type CgpaResult, type Scale, type Status } f
 const EXAMPLE: CgpaInputs = { current: '2.80', completed: '60', target: '3.50', remaining: '90' };
 const EMPTY: CgpaInputs = { current: '', completed: '', target: '', remaining: '' };
 
-const STATUS: Record<Status, { label: string; advice: string }> = {
-  'on-track': {
-    label: 'On track',
-    advice: 'Keep your average at or above this and you’ll reach your target.',
-  },
-  achievable: {
-    label: 'Achievable',
-    advice: 'Within reach with consistent work across your remaining courses.',
-  },
-  stretch: {
-    label: 'Demanding',
-    advice: 'Possible, but it leaves little room for error. A clear plan and regular accountability make a real difference.',
-  },
-  'out-of-reach': {
-    label: 'Not reachable',
-    advice: 'Even with a perfect score on every remaining unit, this target is out of reach. A mentor can help you set a realistic one.',
-  },
+const STATUS: Record<Status, { label: string; advice?: string }> = {
+  'on-track': { label: 'On track' },
+  achievable: { label: 'Achievable' },
+  stretch: { label: 'Demanding', advice: 'Possible, but it leaves little room for error.' },
+  'out-of-reach': { label: 'Not reachable', advice: 'Even perfect scores on every remaining unit won’t get you there.' },
 };
 
 const fmt = (n: number) => n.toFixed(2);
@@ -54,10 +42,9 @@ const GROUPS: { title: string; fields: FieldDef[] }[] = [
 const pos = (value: number, scale: Scale) => `${Math.min(Math.max(value / scale, 0), 1) * 100}%`;
 
 function ResultPanel({ result, scale }: { result: CgpaResult; scale: Scale }) {
-  const { status, required, current, target, completed, remaining, best } = result;
+  const { status, required, current, target, completed, best } = result;
   const info = STATUS[status];
   const reachable = status !== 'out-of-reach';
-  const gap = required - current;
 
   return (
     <div className={`calc-result is-${status}`}>
@@ -65,35 +52,10 @@ function ResultPanel({ result, scale }: { result: CgpaResult; scale: Scale }) {
         <span className="calc-status">{info.label}</span>
       </div>
 
-      {reachable ? (
-        <>
-          <p className="calc-figure">
-            {fmt(required)}
-            <span>average needed on your remaining {remaining} units</span>
-          </p>
-          <p className="calc-sentence">
-            To finish on <strong>{fmt(target)}</strong>, you need to average{' '}
-            <strong>{fmt(required)}</strong> across your remaining {remaining} units
-            {completed > 0 && (
-              gap > 0.005
-                ? <>, <strong>{fmt(gap)} above</strong> your current {fmt(current)}.</>
-                : <>, which is at or below your current {fmt(current)}.</>
-            )}
-            {completed === 0 && '.'}
-          </p>
-        </>
-      ) : (
-        <>
-          <p className="calc-figure">
-            {fmt(best)}
-            <span>highest CGPA you can finish with</span>
-          </p>
-          <p className="calc-sentence">
-            You’d need to average <strong>{fmt(required)}</strong> on your remaining units, which is
-            above the {scale}.00 maximum.
-          </p>
-        </>
-      )}
+      <p className="calc-figure">
+        {fmt(reachable ? required : best)}
+        <span>{reachable ? 'average needed' : 'highest possible'}</span>
+      </p>
 
       {/* Scale bar: required average as the fill, with current and target marked. */}
       <div className="calc-scale" aria-hidden="true">
@@ -113,10 +75,10 @@ function ResultPanel({ result, scale }: { result: CgpaResult; scale: Scale }) {
         </ul>
       </div>
 
-      <p className="calc-advice">{info.advice}</p>
-
-      {(status === 'stretch' || status === 'out-of-reach') && (
-        <a href="/cgpa-mentorship/" className="calc-help">Get support from a CGPA mentor →</a>
+      {info.advice && (
+        <p className="calc-advice">
+          {info.advice} <a href="/cgpa-mentorship/">Get support from a CGPA mentor →</a>
+        </p>
       )}
     </div>
   );

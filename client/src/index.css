@@ -1200,11 +1200,9 @@ a {
   font-size: 0.9375rem;
 }
 
-.calc-help {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 6px 0;
+.calc-advice a {
   font-weight: 600;
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {
