@@ -87,7 +87,6 @@ export default function Nav({
         <div className="nav-menu" id="nav-menu">
           <ul className="nav-links">
             <li><a href="/#vision" onClick={closeAll}>About</a></li>
-            <li><a href="/#method" onClick={closeAll}>Our approach</a></li>
             <li
               ref={dropdownRef}
               className={programmesOpen ? 'nav-dropdown is-open' : 'nav-dropdown'}
