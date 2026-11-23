@@ -1,4 +1,6 @@
 /**
+ * @OnlyCurrentDoc
+ *
  * Edukademia: website form submissions → Google Sheet
  *
  * Handles every website form, each in its own tab, and emails each submission:
@@ -7,8 +9,9 @@
  *   - "school"            → School enquiries     (/school-partnership/)
  *   - "guide"             → Free guide requests  (/cgpa-mentorship/)
  *
- * Paste this into Extensions → Apps Script of the registrations spreadsheet,
- * then deploy it as a web app (see README.md in this folder).
+ * Paste this into Extensions → Apps Script of the registrations spreadsheet, replace
+ * appsscript.json with the one in this folder, run setup() once, then deploy it as a
+ * web app (see README.md). "@OnlyCurrentDoc" limits access to this one spreadsheet.
  */
 
 /** Who gets an email for each new submission. Set to '' to turn notifications off. */
@@ -147,13 +150,18 @@ function notify(form, values, ref, replyTo) {
   // Drop the leading apostrophe that only exists to stop Sheets reading "+234…" as a formula.
   const lines = form.columns.map(([header], i) => `${header}: ${String(values[i]).replace(/^'/, '')}`);
   if (ref) lines.unshift(`Reference: ${ref}`, '');
-  MailApp.sendEmail({
-    to: NOTIFY_EMAIL,
-    subject: `New ${form.label}: ${values[0]}${ref ? ` (${ref})` : ''}`,
-    body: lines.join('\n'),
-    // Pressing Reply in Gmail answers the person who filled in the form.
-    replyTo: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo) ? replyTo : NOTIFY_EMAIL,
-  });
+  try {
+    MailApp.sendEmail({
+      to: NOTIFY_EMAIL,
+      subject: `New ${form.label}: ${values[0]}${ref ? ` (${ref})` : ''}`,
+      body: lines.join('\n'),
+      // Pressing Reply in Gmail answers the person who filled in the form.
+      replyTo: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo) ? replyTo : NOTIFY_EMAIL,
+    });
+  } catch (err) {
+    // The row is already saved; a failed email should not lose the submission.
+    console.error('Notification email failed:', err);
+  }
 }
 
 /** Short, human-friendly reference such as SCH-LX3K9A2F. */
@@ -176,4 +184,20 @@ function list(value) {
 
 function json(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Run this once from the Apps Script editor (select "setup" → Run). It asks for permission,
+ * creates every tab with its headings, and sends a test email to NOTIFY_EMAIL.
+ */
+function setup() {
+  Object.values(FORMS).forEach((form) => sheet(form));
+  if (NOTIFY_EMAIL) {
+    MailApp.sendEmail(
+      NOTIFY_EMAIL,
+      'Edukademia website forms are connected',
+      'Your Google Sheet is ready. New form submissions from the website will be saved there and emailed here.',
+    );
+  }
+  console.log('Setup complete: tabs created' + (NOTIFY_EMAIL ? ' and test email sent to ' + NOTIFY_EMAIL : '') + '.');
 }
