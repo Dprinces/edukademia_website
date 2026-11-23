@@ -7,7 +7,7 @@ const PROGRAMMES = [
   },
   {
     href: '/exam-preparation/',
-    audience: 'For secondary-school students',
+    audience: 'For exam candidates',
     title: 'Exam Preparation',
     meta: 'WAEC, NECO, JAMB and English tests',
   },
