@@ -47,16 +47,6 @@ export const TIME_SLOTS = [
   { id: 'Evening', label: 'Evening', hours: '4pm – 8pm' },
 ];
 
-export const COUNTRIES = [
-  'Nigeria',
-  'Ghana',
-  'Kenya',
-  'South Africa',
-  'United Kingdom',
-  'United States',
-  'Canada',
-];
-
 export const LEARNING_FORMAT = 'Online';
 
 export const STEPS = [

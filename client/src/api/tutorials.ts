@@ -12,6 +12,8 @@ export interface TutorialEnquiry {
   days: string[];
   times: string[];
   scheduleNotes: string;
+  /** Visitor's time zone (e.g. "Europe/London"), so preferred times can be read correctly. */
+  timeZone: string;
   /** Honeypot; always empty for real visitors. */
   website: string;
 }

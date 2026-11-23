@@ -11,6 +11,7 @@ export interface ITutorialEnquiry extends Document {
   days: string[];
   times: string[];
   scheduleNotes?: string;
+  timeZone?: string;
   learningFormat: 'Online';
   submittedAt: Date;
 }
@@ -26,6 +27,7 @@ const TutorialEnquirySchema = new Schema<ITutorialEnquiry>({
   days: { type: [String], default: [] },
   times: { type: [String], default: [] },
   scheduleNotes: { type: String },
+  timeZone: { type: String },
   learningFormat: { type: String, enum: ['Online'], default: 'Online' },
   submittedAt: { type: Date, default: Date.now },
 });

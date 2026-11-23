@@ -1,19 +1,27 @@
 import { useState } from 'react';
 import { submitGraduateRegistration, type GraduateRegistration } from '../../api/graduate';
+import { countryName, formatPhone, isValidPhone, type CountryCode } from '../../lib/countries';
 import { WHATSAPP_DIRECT_URL, whatsappUrl } from '../../lib/whatsapp';
-import { COUNTRIES, PROGRAMME_NAME, QUESTIONS, STAGES, type QuestionId } from './content';
+import { CountrySelect, PhoneInput } from '../forms/CountryFields';
+import { PROGRAMME_NAME, QUESTIONS, STAGES, type QuestionId } from './content';
 
 type Status = 'editing' | 'saving' | 'saved' | 'error';
 type ErrorKey = 'fullName' | 'phone' | 'email' | 'country' | 'stage';
 type Errors = Partial<Record<ErrorKey, string>>;
 
-type Details = Omit<GraduateRegistration, 'questions'>;
+/** Form state: countries are held as ISO codes and converted to names when sent. */
+type Details = Omit<GraduateRegistration, 'questions' | 'country'> & {
+  countryCode: CountryCode | '';
+  /** Country whose dialling code the phone number uses. */
+  phoneCountry: CountryCode | '';
+};
 
 const EMPTY: Details = {
   fullName: '',
   phone: '',
   email: '',
-  country: 'Nigeria',
+  countryCode: '',
+  phoneCountry: '',
   stage: '',
   institution: '',
   course: '',
@@ -28,10 +36,14 @@ const YEARS = [THIS_YEAR + 1, THIS_YEAR, THIS_YEAR - 1, THIS_YEAR - 2, THIS_YEAR
 function validate(d: Details): Errors {
   const errors: Errors = {};
   if (!d.fullName.trim()) errors.fullName = 'Enter your full name.';
-  if (d.phone.replace(/\D/g, '').length < 7) errors.phone = 'Enter a phone or WhatsApp number.';
+  if (!d.phone.trim()) errors.phone = 'Enter your phone or WhatsApp number.';
+  else if (!d.phoneCountry && !d.phone.trim().startsWith('+')) errors.phone = 'Choose your country code.';
+  else if (!isValidPhone(d.phone, d.phoneCountry)) {
+    errors.phone = `Enter a valid number${d.phoneCountry ? ` for ${countryName(d.phoneCountry)}` : ''}.`;
+  }
   if (!d.email.trim()) errors.email = 'Enter your email address.';
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) errors.email = 'Enter a valid email address.';
-  if (!d.country.trim()) errors.country = 'Enter your country.';
+  if (!d.countryCode) errors.country = 'Select your country.';
   if (!d.stage) errors.stage = 'Select the option that describes you.';
   return errors;
 }
@@ -45,9 +57,9 @@ function buildMessage(d: Details, questions: QuestionId[]) {
     `Hello Edukademia! I would like to join the ${PROGRAMME_NAME}.`,
     '',
     `Name: ${d.fullName.trim()}`,
-    `Phone/WhatsApp: ${d.phone.trim()}`,
+    `Phone/WhatsApp: ${formatPhone(d.phone, d.phoneCountry)}`,
     `Email: ${d.email.trim()}`,
-    `Country: ${d.country.trim()}`,
+    `Country: ${countryName(d.countryCode)}`,
     `I am a: ${stage}`,
   ];
   if (d.institution.trim()) lines.push(`Institution: ${d.institution.trim()}`);
@@ -66,6 +78,8 @@ interface GraduateFormProps {
 
 export default function GraduateForm({ selectedQuestions, onToggleQuestion }: GraduateFormProps) {
   const [form, setForm] = useState<Details>(EMPTY);
+  // Once the visitor picks a dialling code themselves, choosing a country no longer changes it.
+  const [phoneCodeChosen, setPhoneCodeChosen] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [status, setStatus] = useState<Status>('editing');
 
@@ -73,6 +87,10 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
 
   const set = <K extends keyof Details>(key: K, value: Details[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  function chooseCountry(code: CountryCode | '') {
+    setForm((prev) => ({ ...prev, countryCode: code, phoneCountry: phoneCodeChosen ? prev.phoneCountry : code }));
+  }
 
   const invalid = (key: ErrorKey) => showErrors && Boolean(errors[key]);
   const err = (key: ErrorKey) =>
@@ -96,8 +114,15 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
 
     setStatus('saving');
     try {
+      const { countryCode, phoneCountry, ...rest } = form;
       const stage = STAGES.find((s) => s.id === form.stage)?.label ?? form.stage;
-      await submitGraduateRegistration({ ...form, stage, questions: questionText(selectedQuestions) });
+      await submitGraduateRegistration({
+        ...rest,
+        phone: formatPhone(form.phone, phoneCountry),
+        country: countryName(countryCode),
+        stage,
+        questions: questionText(selectedQuestions),
+      });
       setStatus('saved');
       requestAnimationFrame(() =>
         document.getElementById('register')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
@@ -150,12 +175,6 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
               onChange={(e) => set('fullName', e.target.value)} {...aria('fullName')} />
             {err('fullName')}
           </div>
-          <div className={invalid('phone') ? 'field invalid' : 'field'}>
-            <label htmlFor="grad-phone">Phone / WhatsApp number <span className="req">*</span></label>
-            <input id="grad-phone" type="tel" autoComplete="tel" placeholder="e.g. +234 801 234 5678" value={form.phone}
-              onChange={(e) => set('phone', e.target.value)} {...aria('phone')} />
-            {err('phone')}
-          </div>
           <div className={invalid('email') ? 'field invalid' : 'field'}>
             <label htmlFor="grad-email">Email address <span className="req">*</span></label>
             <input id="grad-email" type="email" autoComplete="email" placeholder="e.g. ada@example.com" value={form.email}
@@ -164,12 +183,22 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
           </div>
           <div className={invalid('country') ? 'field invalid' : 'field'}>
             <label htmlFor="grad-country">Country <span className="req">*</span></label>
-            <input id="grad-country" type="text" autoComplete="country-name" placeholder="e.g. Nigeria" list="grad-country-list" value={form.country}
-              onChange={(e) => set('country', e.target.value)} {...aria('country')} />
-            <datalist id="grad-country-list">
-              {COUNTRIES.map((c) => <option key={c} value={c} />)}
-            </datalist>
+            <CountrySelect
+              id="grad-country" value={form.countryCode} onChange={chooseCountry}
+              invalid={invalid('country')} describedBy={aria('country')['aria-describedby']}
+            />
             {err('country')}
+          </div>
+          <div className={invalid('phone') ? 'field invalid' : 'field'}>
+            <label htmlFor="grad-phone">Phone / WhatsApp number <span className="req">*</span></label>
+            <PhoneInput
+              id="grad-phone" required
+              country={form.phoneCountry}
+              onCountryChange={(code) => { setPhoneCodeChosen(true); set('phoneCountry', code); }}
+              value={form.phone} onChange={(v) => set('phone', v)}
+              invalid={invalid('phone')} describedBy={aria('phone')['aria-describedby']}
+            />
+            {err('phone')}
           </div>
         </div>
       </fieldset>
@@ -188,7 +217,7 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
         <div className="form-grid grad-study">
           <div className="field">
             <label htmlFor="grad-institution">University or institution <span className="optional">(optional)</span></label>
-            <input id="grad-institution" type="text" autoComplete="organization" placeholder="e.g. University of Lagos" value={form.institution}
+            <input id="grad-institution" type="text" autoComplete="organization" placeholder="Your university or college" value={form.institution}
               onChange={(e) => set('institution', e.target.value)} />
           </div>
           <div className="field">

@@ -54,8 +54,6 @@ export const STAGES = [
   { id: 'other', label: 'Other' },
 ] as const;
 
-export const COUNTRIES = ['Nigeria', 'Ghana', 'Kenya', 'South Africa', 'United Kingdom', 'United States', 'Canada'];
-
 export const FAQS = [
   {
     q: 'Who can participate?',

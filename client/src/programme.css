@@ -242,6 +242,24 @@
 }
 
 
+/* ---------- International phone number (code picker + number) ---------- */
+
+.phone-input {
+  display: flex;
+  gap: 8px;
+}
+
+.phone-input .phone-code {
+  flex: 0 0 6.5rem;
+  min-width: 0;
+  text-overflow: ellipsis;
+}
+
+.phone-input input {
+  flex: 1;
+  min-width: 0;
+}
+
 /* ---------- Free guide form ---------- */
 
 .guide-form {

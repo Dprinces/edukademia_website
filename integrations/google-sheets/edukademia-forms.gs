@@ -29,6 +29,7 @@ const FORMS = {
       ['Preferred days', (d) => list(d.days).join(', ')],
       ['Preferred times', (d) => list(d.times).join(', ')],
       ['Schedule notes', (d) => clean(d.scheduleNotes)],
+      ['Time zone', (d) => clean(d.timeZone)],
       ['Learning format', () => 'Online'],
     ],
   },

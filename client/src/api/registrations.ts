@@ -3,6 +3,7 @@ export interface SchoolEnquiry {
   contactName: string;
   role: string;
   email: string;
+  country: string;
   phone: string;
   studentCount: string;
   interest: string;

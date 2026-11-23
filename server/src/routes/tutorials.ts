@@ -23,6 +23,7 @@ const enquirySchema = z
     days: z.array(z.enum(DAYS)).min(1).max(7),
     times: z.array(z.enum(TIMES)).min(1).max(3),
     scheduleNotes: text(300).optional().default(''),
+    timeZone: text(80).optional().default(''),
     // Honeypot: real visitors never see or fill this field.
     website: z.string().optional(),
   })
@@ -55,6 +56,7 @@ router.post('/enquiry', async (req: Request, res: Response) => {
     await TutorialEnquiry.create({
       ...enquiry,
       scheduleNotes: enquiry.scheduleNotes || undefined,
+      timeZone: enquiry.timeZone || undefined,
       learningFormat: 'Online',
     });
     res.json({ ok: true });

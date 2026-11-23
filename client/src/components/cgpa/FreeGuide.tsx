@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { requestGuide, type GuideRequest } from '../../api/guide';
+import { countryName, formatPhone, isValidPhone, type CountryCode } from '../../lib/countries';
+import { PhoneInput } from '../forms/CountryFields';
 
 type Status = 'closed' | 'open' | 'submitting' | 'ready' | 'error' | 'rate-limited';
-type Errors = Partial<Record<'fullName' | 'email' | 'level', string>>;
+type Errors = Partial<Record<'fullName' | 'email' | 'phone' | 'level', string>>;
 
 const STORAGE_KEY = 'edukademia.guide.details';
 
@@ -42,8 +44,14 @@ function save(data: GuideRequest) {
   }
 }
 
-function validate(d: GuideRequest): Errors {
+function validate(d: GuideRequest, phoneCountry: CountryCode | ''): Errors {
   const errors: Errors = {};
+  // The WhatsApp number is optional, but if given it must be a real number.
+  const phone = d.phone.trim();
+  if (phone && !phoneCountry && !phone.startsWith('+')) errors.phone = 'Choose your country code.';
+  else if (phone && !isValidPhone(phone, phoneCountry)) {
+    errors.phone = `Enter a valid number${phoneCountry ? ` for ${countryName(phoneCountry)}` : ''}, or leave it blank.`;
+  }
   if (!d.fullName.trim()) errors.fullName = 'Enter your name.';
   if (!d.email.trim()) errors.email = 'Enter your email address.';
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) errors.email = 'Enter a valid email address.';
@@ -56,8 +64,9 @@ export default function FreeGuide() {
   const [form, setForm] = useState<GuideRequest>(loadSaved);
   const [showErrors, setShowErrors] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('');
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode | ''>('');
 
-  const errors = validate(form);
+  const errors = validate(form, phoneCountry);
 
   function update(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value, type } = e.target;
@@ -72,8 +81,9 @@ export default function FreeGuide() {
 
     setStatus('submitting');
     try {
-      const { downloadUrl: url } = await requestGuide(form);
-      save(form);
+      const details = { ...form, phone: form.phone.trim() ? formatPhone(form.phone, phoneCountry) : '' };
+      const { downloadUrl: url } = await requestGuide(details);
+      save(details);
       setDownloadUrl(url);
       setStatus('ready');
       // The server responds with Content-Disposition: attachment, so the page stays put.
@@ -159,12 +169,18 @@ export default function FreeGuide() {
                     {fieldError('email')}
                   </div>
 
-                  <div className="field">
+                  <div className={invalid('phone')}>
                     <label htmlFor="guide-phone">WhatsApp number <span className="optional">(optional)</span></label>
-                    <input
-                      id="guide-phone" name="phone" type="tel" autoComplete="tel" placeholder="e.g. +234 801 234 5678"
-                      value={form.phone} onChange={update}
+                    <PhoneInput
+                      id="guide-phone"
+                      country={phoneCountry}
+                      onCountryChange={setPhoneCountry}
+                      value={form.phone}
+                      onChange={(v) => setForm((prev) => ({ ...prev, phone: v }))}
+                      invalid={Boolean(showErrors && errors.phone)}
+                      describedBy={showErrors && errors.phone ? 'guide-phone-error' : undefined}
                     />
+                    {fieldError('phone')}
                   </div>
 
                   <div className={invalid('level')}>
