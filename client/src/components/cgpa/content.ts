@@ -60,7 +60,7 @@ export const MENTOR_REQUIREMENTS = [
   'Be a graduate, postgraduate student, professional, educator or experienced individual with relevant knowledge to support students.',
   'Strong character, integrity, responsibility and a genuine commitment to student development.',
   'Adequate time to engage your assigned mentees consistently, including mentorship sessions, check-ins, workshops and programme activities.',
-  'Complete the mandatory CGPA Mentor Orientation and Training, and commit to the agreed mentorship period and programme guidelines.',
+  'Complete the mandatory CGPA Mentor Orientation, and commit to the agreed mentorship period and programme guidelines.',
 ];
 
 export const PATHWAY = [
@@ -89,7 +89,7 @@ export const HOW_TO_APPLY = [
   },
   {
     title: 'Orientation and matching',
-    body: 'Mentors complete the mandatory orientation and training, and mentees are matched with a mentor before the programme begins.',
+    body: 'All mentors and mentees complete a mandatory orientation, and mentees are matched with a mentor before the programme begins.',
   },
 ];
 
@@ -123,7 +123,7 @@ export const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'What does mentoring involve?',
-    a: 'Mentors support assigned mentees through sessions, check-ins, workshops and programme activities. All mentors complete a mandatory orientation and training and commit to the agreed mentorship period.',
+    a: 'Mentors support assigned mentees through sessions, check-ins, workshops and programme activities. All mentors complete a mandatory orientation and commit to the agreed mentorship period.',
   },
   {
     q: 'When will I receive a certificate?',
