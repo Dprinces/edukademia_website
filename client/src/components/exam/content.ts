@@ -1,12 +1,4 @@
-const WHATSAPP_NUMBER = '2348067845022';
-
-/** WhatsApp chat with a pre-filled message. */
-export function whatsappUrl(message: string) {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-}
-
-/** WhatsApp business message link; cannot carry custom text, so only offered after registration. */
-export const WHATSAPP_DIRECT_URL = 'https://wa.me/message/O4UBELVXPM2GB1';
+export { whatsappUrl, WHATSAPP_DIRECT_URL } from '../../lib/whatsapp';
 
 export type ExamGroup = 'school' | 'english';
 
@@ -53,16 +45,6 @@ export const TIME_SLOTS = [
   { id: 'Morning', label: 'Morning', hours: '8am – 12pm' },
   { id: 'Afternoon', label: 'Afternoon', hours: '12pm – 4pm' },
   { id: 'Evening', label: 'Evening', hours: '4pm – 8pm' },
-];
-
-export const COUNTRIES = [
-  'Nigeria',
-  'Ghana',
-  'Kenya',
-  'South Africa',
-  'United Kingdom',
-  'United States',
-  'Canada',
 ];
 
 export const LEARNING_FORMAT = 'Online';

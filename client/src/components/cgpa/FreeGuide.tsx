@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { requestGuide, type GuideRequest } from '../../api/guide';
+import { countryName, formatPhone, isValidPhone, type CountryCode } from '../../lib/countries';
+import { PhoneInput } from '../forms/CountryFields';
 
 type Status = 'closed' | 'open' | 'submitting' | 'ready' | 'error' | 'rate-limited';
-type Errors = Partial<Record<'fullName' | 'email' | 'level', string>>;
+type Errors = Partial<Record<'fullName' | 'email' | 'phone' | 'level', string>>;
 
 const STORAGE_KEY = 'edukademia.guide.details';
 
@@ -42,8 +44,14 @@ function save(data: GuideRequest) {
   }
 }
 
-function validate(d: GuideRequest): Errors {
+function validate(d: GuideRequest, phoneCountry: CountryCode | ''): Errors {
   const errors: Errors = {};
+  // The WhatsApp number is optional, but if given it must be a real number.
+  const phone = d.phone.trim();
+  if (phone && !phoneCountry && !phone.startsWith('+')) errors.phone = 'Choose your country code.';
+  else if (phone && !isValidPhone(phone, phoneCountry)) {
+    errors.phone = `Enter a valid number${phoneCountry ? ` for ${countryName(phoneCountry)}` : ''}, or leave it blank.`;
+  }
   if (!d.fullName.trim()) errors.fullName = 'Enter your name.';
   if (!d.email.trim()) errors.email = 'Enter your email address.';
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)) errors.email = 'Enter a valid email address.';
@@ -56,8 +64,10 @@ export default function FreeGuide() {
   const [form, setForm] = useState<GuideRequest>(loadSaved);
   const [showErrors, setShowErrors] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('');
+  const [linkExpires, setLinkExpires] = useState(false);
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode | ''>('');
 
-  const errors = validate(form);
+  const errors = validate(form, phoneCountry);
 
   function update(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value, type } = e.target;
@@ -72,12 +82,19 @@ export default function FreeGuide() {
 
     setStatus('submitting');
     try {
-      const { downloadUrl: url } = await requestGuide(form);
-      save(form);
+      const details = { ...form, phone: form.phone.trim() ? formatPhone(form.phone, phoneCountry) : '' };
+      const { downloadUrl: url, expires } = await requestGuide(details);
+      save(details);
       setDownloadUrl(url);
+      setLinkExpires(expires);
       setStatus('ready');
-      // The server responds with Content-Disposition: attachment, so the page stays put.
-      window.location.assign(url);
+      // Download without leaving the page.
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Edukademia-Academic-Success-Starter-Guide.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     } catch (err) {
       setStatus(err instanceof Error && err.message === 'rate-limited' ? 'rate-limited' : 'error');
     }
@@ -128,8 +145,8 @@ export default function FreeGuide() {
               <div className="guide-ready" role="status">
                 <p className="guide-ready-title">Thank you, {form.fullName.split(' ')[0]}. Your download has started.</p>
                 <p>
-                  If it didn’t start, <a href={downloadUrl}>download the guide here</a>. The link
-                  works for one hour.
+                  If it didn’t start, <a href={downloadUrl} download>download the guide here</a>.
+                  {linkExpires && ' The link works for one hour.'}
                 </p>
               </div>
             )}
@@ -140,7 +157,7 @@ export default function FreeGuide() {
                   <div className={invalid('fullName')}>
                     <label htmlFor="guide-fullName">Full name <span className="req">*</span></label>
                     <input
-                      id="guide-fullName" name="fullName" type="text" autoComplete="name"
+                      id="guide-fullName" name="fullName" type="text" autoComplete="name" placeholder="e.g. Ada Okafor"
                       value={form.fullName} onChange={update}
                       aria-invalid={Boolean(showErrors && errors.fullName) || undefined}
                       aria-describedby={showErrors && errors.fullName ? 'guide-fullName-error' : undefined}
@@ -151,7 +168,7 @@ export default function FreeGuide() {
                   <div className={invalid('email')}>
                     <label htmlFor="guide-email">Email address <span className="req">*</span></label>
                     <input
-                      id="guide-email" name="email" type="email" autoComplete="email"
+                      id="guide-email" name="email" type="email" autoComplete="email" placeholder="e.g. ada@example.com"
                       value={form.email} onChange={update}
                       aria-invalid={Boolean(showErrors && errors.email) || undefined}
                       aria-describedby={showErrors && errors.email ? 'guide-email-error' : undefined}
@@ -159,15 +176,7 @@ export default function FreeGuide() {
                     {fieldError('email')}
                   </div>
 
-                  <div className="field">
-                    <label htmlFor="guide-phone">WhatsApp number <span className="optional">(optional)</span></label>
-                    <input
-                      id="guide-phone" name="phone" type="tel" autoComplete="tel"
-                      value={form.phone} onChange={update}
-                    />
-                  </div>
-
-                  <div className={invalid('level')}>
+                  <div className={`${invalid('level')} full-width`}>
                     <label htmlFor="guide-level">I am a <span className="req">*</span></label>
                     <select
                       id="guide-level" name="level" value={form.level} onChange={update}
@@ -178,6 +187,20 @@ export default function FreeGuide() {
                       {LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
                     </select>
                     {fieldError('level')}
+                  </div>
+
+                  <div className={`${invalid('phone')} full-width`}>
+                    <label htmlFor="guide-phone">WhatsApp number <span className="optional">(optional)</span></label>
+                    <PhoneInput
+                      id="guide-phone"
+                      country={phoneCountry}
+                      onCountryChange={setPhoneCountry}
+                      value={form.phone}
+                      onChange={(v) => setForm((prev) => ({ ...prev, phone: v }))}
+                      invalid={Boolean(showErrors && errors.phone)}
+                      describedBy={showErrors && errors.phone ? 'guide-phone-error' : undefined}
+                    />
+                    {fieldError('phone')}
                   </div>
                 </div>
 

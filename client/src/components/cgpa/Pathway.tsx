@@ -22,6 +22,12 @@ export default function Pathway() {
             </li>
           ))}
         </ol>
+
+        <p className="pathway-next">
+          Graduating soon?{' '}
+          <a href="/graduate-clarity/">See the Graduate Next-Phase Clarity Programme</a>
+          {' '}for coaching on your career direction and next steps.
+        </p>
       </div>
     </section>
   );

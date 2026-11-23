@@ -27,6 +27,7 @@ export default function Footer() {
               <ul>
                 <li><a href="/cgpa-mentorship/">CGPA Mentorship</a></li>
                 <li><a href="/exam-preparation/">Exam Preparation</a></li>
+                <li><a href="/graduate-clarity/">Graduate Clarity Programme</a></li>
                 <li><a href="/school-partnership/">School Partnership</a></li>
               </ul>
             </div>

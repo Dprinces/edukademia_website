@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { submitSchoolEnquiry, type SchoolEnquiry } from '../../api/registrations';
+import { countryName, formatPhone, isValidPhone, type CountryCode } from '../../lib/countries';
+import { CountrySelect, PhoneInput } from '../forms/CountryFields';
 import { OPTIONS } from './content';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -10,13 +12,15 @@ const INITIAL: SchoolEnquiry = {
   contactName: '',
   role: '',
   email: '',
+  // Held as an ISO country code while editing; sent as the country name.
+  country: '',
   phone: '',
   studentCount: '',
   interest: '',
   message: '',
 };
 
-function validate(data: SchoolEnquiry): Errors {
+function validate(data: SchoolEnquiry, phoneCountry: CountryCode | ''): Errors {
   const errors: Errors = {};
 
   if (!data.schoolName.trim()) errors.schoolName = 'Enter your institution’s name.';
@@ -27,7 +31,12 @@ function validate(data: SchoolEnquiry): Errors {
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
     errors.email = 'Enter a valid email address.';
   }
+  if (!data.country) errors.country = 'Select your country.';
   if (!data.phone.trim()) errors.phone = 'Enter a phone number.';
+  else if (!phoneCountry && !data.phone.trim().startsWith('+')) errors.phone = 'Choose your country code.';
+  else if (!isValidPhone(data.phone, phoneCountry)) {
+    errors.phone = `Enter a valid number${phoneCountry ? ` for ${countryName(phoneCountry)}` : ''}.`;
+  }
   const count = parseInt(data.studentCount, 10);
   if (!data.studentCount.trim()) {
     errors.studentCount = 'Enter the approximate number of students.';
@@ -49,12 +58,22 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
   const [touched, setTouched] = useState<Partial<Record<keyof SchoolEnquiry, boolean>>>({});
   const [status, setStatus] = useState<Status>('idle');
   const [refCode, setRefCode] = useState('');
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode | ''>('');
+  // Once the visitor picks a dialling code themselves, choosing a country no longer changes it.
+  const [phoneCodeChosen, setPhoneCodeChosen] = useState(false);
 
   useEffect(() => {
     if (presetInterest) setForm((prev) => ({ ...prev, interest: presetInterest }));
   }, [presetInterest]);
 
-  const errors = validate(form);
+  const errors = validate(form, phoneCountry);
+
+  function chooseCountry(code: CountryCode | '') {
+    setForm((prev) => ({ ...prev, country: code }));
+    if (!phoneCodeChosen) setPhoneCountry(code);
+  }
+
+  const markTouched = (name: keyof SchoolEnquiry) => setTouched((prev) => ({ ...prev, [name]: true }));
 
   function update(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const { name, value } = e.target;
@@ -99,7 +118,13 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
 
     setStatus('submitting');
     try {
-      const result = await submitSchoolEnquiry(form);
+      const result = await submitSchoolEnquiry({
+        ...form,
+        country: countryName(form.country as CountryCode),
+        phone: formatPhone(form.phone, phoneCountry),
+        // Readable option name ("Full partnership") rather than its internal id.
+        interest: OPTIONS.find((o) => o.id === form.interest)?.name ?? 'Not sure yet',
+      });
       setRefCode(result.ref);
       setStatus('success');
     } catch {
@@ -137,20 +162,20 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
                 Thank you for your interest. A partnership manager will contact you
                 within two business days to discuss how we can support your students.
               </p>
-              <p className="success-ref">Reference: <strong>{refCode}</strong></p>
+              {refCode && <p className="success-ref">Reference: <strong>{refCode}</strong></p>}
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate>
               <div className="form-grid">
                 <div className={fieldClass('schoolName', true)}>
                   <label htmlFor="enq-schoolName">Institution name <span className="req">*</span></label>
-                  <input type="text" autoComplete="organization" {...fieldProps('schoolName')} />
+                  <input type="text" autoComplete="organization" placeholder="e.g. Greenfield College" {...fieldProps('schoolName')} />
                   {error('schoolName')}
                 </div>
 
                 <div className={fieldClass('contactName')}>
                   <label htmlFor="enq-contactName">Contact person <span className="req">*</span></label>
-                  <input type="text" autoComplete="name" {...fieldProps('contactName')} />
+                  <input type="text" autoComplete="name" placeholder="e.g. Ada Okafor" {...fieldProps('contactName')} />
                   {error('contactName')}
                 </div>
 
@@ -162,13 +187,35 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
 
                 <div className={fieldClass('email')}>
                   <label htmlFor="enq-email">Email address <span className="req">*</span></label>
-                  <input type="email" autoComplete="email" {...fieldProps('email')} />
+                  <input type="email" autoComplete="email" placeholder="e.g. ada@greenfield.edu" {...fieldProps('email')} />
                   {error('email')}
                 </div>
 
-                <div className={fieldClass('phone')}>
+                <div className={fieldClass('country')}>
+                  <label htmlFor="enq-country">Country <span className="req">*</span></label>
+                  <CountrySelect
+                    id="enq-country"
+                    value={form.country as CountryCode | ''}
+                    onChange={chooseCountry}
+                    onBlur={() => markTouched('country')}
+                    invalid={fieldProps('country')['aria-invalid']}
+                    describedBy={fieldProps('country')['aria-describedby']}
+                  />
+                  {error('country')}
+                </div>
+
+                <div className={fieldClass('phone', true)}>
                   <label htmlFor="enq-phone">Phone number <span className="req">*</span></label>
-                  <input type="tel" autoComplete="tel" {...fieldProps('phone')} />
+                  <PhoneInput
+                    id="enq-phone" required
+                    country={phoneCountry}
+                    onCountryChange={(code) => { setPhoneCodeChosen(true); setPhoneCountry(code); }}
+                    value={form.phone}
+                    onChange={(v) => setForm((prev) => ({ ...prev, phone: v }))}
+                    onBlur={() => markTouched('phone')}
+                    invalid={fieldProps('phone')['aria-invalid']}
+                    describedBy={fieldProps('phone')['aria-describedby']}
+                  />
                   {error('phone')}
                 </div>
 

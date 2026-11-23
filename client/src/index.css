@@ -267,6 +267,79 @@ a {
   color: var(--muted);
 }
 
+/* Second-level items (e.g. "Become a mentor" under CGPA Mentorship).
+   Desktop: side panel on hover or keyboard focus, opening to the right. On narrower
+   desktops there isn't room on the right, so it flips to the left (see media query below). */
+.nav-submenu .has-flyout {
+  position: relative;
+}
+
+.nav-submenu .has-flyout > a {
+  padding-right: 32px;
+  position: relative;
+}
+
+.nav-flyout-arrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: solid var(--muted);
+  border-width: 1.5px 1.5px 0 0;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.nav-flyout {
+  display: none;
+  position: absolute;
+  top: -9px;
+  left: calc(100% + 8px);
+  min-width: 240px;
+  list-style: none;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(4, 32, 71, 0.08);
+  padding: 8px;
+}
+
+/* Invisible bridge so the pointer can travel from the item to the panel without it closing. */
+.nav-flyout::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 100%;
+  width: 12px;
+}
+
+@media (min-width: 1041px) and (max-width: 1279px) {
+  .nav-flyout {
+    left: auto;
+    right: calc(100% + 8px);
+  }
+
+  .nav-flyout::after {
+    right: auto;
+    left: 100%;
+  }
+
+  .nav-flyout-arrow {
+    border-width: 0 0 1.5px 1.5px;
+  }
+}
+
+.has-flyout:hover > .nav-flyout,
+.has-flyout:focus-within > .nav-flyout {
+  display: block;
+}
+
+.has-flyout:hover > a,
+.has-flyout:focus-within > a {
+  background: var(--navy-tint);
+}
+
 .nav-ctas {
   display: flex;
   align-items: center;
@@ -1195,7 +1268,7 @@ a {
 
 .paths-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
 }
 
@@ -1541,6 +1614,31 @@ a {
   .nav-submenu a {
     padding: 10px 12px;
     margin: 0 -12px;
+  }
+
+  .nav-flyout-arrow {
+    display: none;
+  }
+
+  .nav-flyout {
+    display: block;
+    position: static;
+    min-width: 0;
+    border: none;
+    border-left: 2px solid var(--line);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0 0 0 12px;
+    margin: 0 0 6px 4px;
+  }
+
+  .nav-flyout::after {
+    display: none;
+  }
+
+  .has-flyout:hover > a,
+  .has-flyout:focus-within > a {
+    background: none;
   }
 
   .nav-ctas {

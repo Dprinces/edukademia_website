@@ -20,6 +20,7 @@ const schoolSchema = z.object({
   contactName: z.string().min(1),
   role: z.string().min(1),
   email: z.string().email(),
+  country: z.string().max(80).optional().default(''),
   phone: z.string().min(1),
   studentCount: z.coerce.number().min(1),
   interest: z.string().min(1),

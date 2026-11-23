@@ -10,13 +10,14 @@ client/          React + TypeScript + Vite (multi-page static site)
   index.html               Home
   cgpa-mentorship/         CGPA Mentorship programme
   exam-preparation/        WAEC, NECO, JAMB and English language exam tutorials
+  graduate-clarity/        Graduate Next-Phase Clarity Programme
   school-partnership/      School partnership + enquiry form
   policies/                Refund, privacy, certificate and participation policies
   public/                  Images, video, logo, favicon
 server/          Express + MongoDB API (enquiries, free-guide downloads)
   assets/                  Free guide PDF (served only after the guide form)
 integrations/
-  google-sheets/           Apps Script that saves exam-preparation registrations to a Google Sheet
+  google-sheets/           Apps Script that saves every form to a Google Sheet (setup + email guide)
 ```
 
 ## Getting started
@@ -46,8 +47,9 @@ Run one side only with `npm run dev -w client` or `npm run dev -w server`.
 
 | Variable | Purpose |
 | --- | --- |
-| `VITE_TUTORIALS_SHEET_URL` | Apps Script web app URL for exam registrations ([setup](integrations/google-sheets/README.md)) |
-| `VITE_TUTORIALS_USE_API` | `true` to also save exam registrations through the API |
+| `VITE_FORMS_SHEET_URL` | Apps Script web app URL that saves every form to a Google Sheet and emails it ([setup](integrations/google-sheets/README.md)) |
+| `VITE_WEB3FORMS_KEY` | Web3Forms access key that emails each submission to edukademia1@gmail.com |
+| `VITE_USE_API` | `true` once the backend is live, to send every form to the API instead |
 
 Never commit `.env` files. They are ignored by `.gitignore`.
 
@@ -58,13 +60,15 @@ npm run build        # builds server (server/dist) and client (client/dist)
 ```
 
 `client/dist` is a static site with one folder per page, deployable to Netlify, Vercel,
-Cloudflare Pages or similar. The API must be hosted separately and reachable at `/api`
-(for example through a proxy or rewrite rule) for these features:
+Cloudflare Pages or similar.
 
-- School partnership enquiry form
-- Free guide download on the CGPA page
+**Forms, for now:** every form (exam, graduate, school enquiry, free guide) is saved to a
+Google Sheet (`VITE_FORMS_SHEET_URL`) and emailed to Edukademia (`VITE_WEB3FORMS_KEY`), so
+the site can go live without the API. The free guide is then a static file revealed after the form.
 
-Exam-preparation registrations work without the API once `VITE_TUTORIALS_SHEET_URL` is set.
+**Later:** host the API separately, reachable at `/api` (for example through a proxy or
+rewrite rule), and set `VITE_USE_API=true`. Forms then go to MongoDB, and the free guide is
+served through signed links that expire after an hour.
 
 ## Content
 

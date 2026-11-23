@@ -12,6 +12,7 @@ export default defineConfig({
         school: resolve(__dirname, 'school-partnership/index.html'),
         policies: resolve(__dirname, 'policies/index.html'),
         exam: resolve(__dirname, 'exam-preparation/index.html'),
+        graduate: resolve(__dirname, 'graduate-clarity/index.html'),
       },
     },
   },

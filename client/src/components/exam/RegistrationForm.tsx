@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { submitTutorialRegistration, type TutorialEnquiry } from '../../api/tutorials';
+import { browserTimeZone, countryName, formatPhone, isValidPhone, type CountryCode } from '../../lib/countries';
+import { CountrySelect, PhoneInput } from '../forms/CountryFields';
 import {
-  COUNTRIES,
   DAYS,
   ENGLISH_SKILLS,
   EXAMS,
@@ -17,11 +18,19 @@ type ErrorKey = 'fullName' | 'phone' | 'email' | 'country' | 'exams' | 'subjects
 type Errors = Partial<Record<ErrorKey, string>>;
 type Status = 'editing' | 'saving' | 'saved' | 'error';
 
-const EMPTY: TutorialEnquiry = {
+/** Form state: countries are held as ISO codes and converted to names when sent. */
+type ExamForm = Omit<TutorialEnquiry, 'country' | 'timeZone'> & {
+  countryCode: CountryCode | '';
+  /** Country whose dialling code the phone number uses. */
+  phoneCountry: CountryCode | '';
+};
+
+const EMPTY: ExamForm = {
   fullName: '',
   phone: '',
   email: '',
-  country: 'Nigeria',
+  countryCode: '',
+  phoneCountry: '',
   exams: [],
   subjects: [],
   otherSubjects: [],
@@ -49,7 +58,7 @@ function availableSubjects(exams: string[]) {
  * Adds a typed subject. If it matches a listed subject or skill (any case), that one is
  * ticked instead, so the same subject never appears twice.
  */
-function addOtherSubject(form: TutorialEnquiry, raw: string): TutorialEnquiry {
+function addOtherSubject(form: ExamForm, raw: string): ExamForm {
   const name = raw.trim().replace(/\s+/g, ' ');
   if (!name) return form;
 
@@ -65,18 +74,22 @@ function addOtherSubject(form: TutorialEnquiry, raw: string): TutorialEnquiry {
 }
 
 /** Drops subjects left over from an exam the visitor has since deselected. */
-function selectedSubjects(form: TutorialEnquiry) {
+function selectedSubjects(form: ExamForm) {
   const { school, english } = availableSubjects(form.exams);
   return form.subjects.filter((s) => school.includes(s) || english.includes(s));
 }
 
-function validate(form: TutorialEnquiry): Errors {
+function validate(form: ExamForm): Errors {
   const errors: Errors = {};
   if (!form.fullName.trim()) errors.fullName = 'Enter your full name.';
-  if (form.phone.replace(/\D/g, '').length < 7) errors.phone = 'Enter a phone or WhatsApp number.';
+  if (!form.phone.trim()) errors.phone = 'Enter your phone or WhatsApp number.';
+  else if (!form.phoneCountry && !form.phone.trim().startsWith('+')) errors.phone = 'Choose your country code.';
+  else if (!isValidPhone(form.phone, form.phoneCountry)) {
+    errors.phone = `Enter a valid number${form.phoneCountry ? ` for ${countryName(form.phoneCountry)}` : ''}.`;
+  }
   if (!form.email.trim()) errors.email = 'Enter your email address.';
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'Enter a valid email address.';
-  if (!form.country.trim()) errors.country = 'Enter your country.';
+  if (!form.countryCode) errors.country = 'Select your country.';
   if (form.exams.length === 0) errors.exams = 'Choose at least one exam.';
   else if (selectedSubjects(form).length === 0 && form.otherSubjects.length === 0) {
     errors.subjects = 'Tick at least one subject, or add your own below.';
@@ -86,7 +99,20 @@ function validate(form: TutorialEnquiry): Errors {
   return errors;
 }
 
-function buildMessage(form: TutorialEnquiry) {
+/** What is saved and sent: readable country, international phone number and time zone. */
+function toEnquiry(form: ExamForm): TutorialEnquiry {
+  const { countryCode, phoneCountry, ...rest } = form;
+  return {
+    ...rest,
+    phone: formatPhone(form.phone, phoneCountry),
+    country: countryName(countryCode),
+    subjects: selectedSubjects(form),
+    timeZone: browserTimeZone(),
+  };
+}
+
+function buildMessage(form: ExamForm) {
+  const enquiry = toEnquiry(form);
   const examNames = EXAMS.filter((e) => form.exams.includes(e.id)).map((e) => e.name);
   const subjects = [...selectedSubjects(form), ...form.otherSubjects];
   const times = TIME_SLOTS.filter((t) => form.times.includes(t.id)).map((t) => `${t.label} (${t.hours})`);
@@ -96,21 +122,24 @@ function buildMessage(form: TutorialEnquiry) {
     'Hello Edukademia! I would like to register for exam preparation tutorials.',
     '',
     `Name: ${form.fullName.trim()}`,
-    `Phone/WhatsApp: ${form.phone.trim()}`,
+    `Phone/WhatsApp: ${enquiry.phone}`,
     `Email: ${form.email.trim()}`,
-    `Country: ${form.country.trim()}`,
+    `Country: ${enquiry.country}`,
     `Exam(s): ${examNames.join(', ')}`,
     `Subjects: ${subjects.join(', ')}`,
     `Preferred days: ${days.join(', ')}`,
     `Preferred times: ${times.join(', ')}`,
   ];
+  if (enquiry.timeZone) lines.push(`Time zone: ${enquiry.timeZone}`);
   if (form.scheduleNotes.trim()) lines.push(`Schedule notes: ${form.scheduleNotes.trim()}`);
   lines.push(`Learning format: ${LEARNING_FORMAT}`);
   return lines.join('\n');
 }
 
 export default function RegistrationForm() {
-  const [form, setForm] = useState<TutorialEnquiry>(EMPTY);
+  const [form, setForm] = useState<ExamForm>(EMPTY);
+  // Once the visitor picks a dialling code themselves, choosing a country no longer changes it.
+  const [phoneCodeChosen, setPhoneCodeChosen] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [status, setStatus] = useState<Status>('editing');
   const [otherDraft, setOtherDraft] = useState('');
@@ -118,8 +147,12 @@ export default function RegistrationForm() {
   const errors = validate(form);
   const { school, english } = availableSubjects(form.exams);
 
-  const set = <K extends keyof TutorialEnquiry>(key: K, value: TutorialEnquiry[K]) =>
+  const set = <K extends keyof ExamForm>(key: K, value: ExamForm[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
+
+  function chooseCountry(code: CountryCode | '') {
+    setForm((prev) => ({ ...prev, countryCode: code, phoneCountry: phoneCodeChosen ? prev.phoneCountry : code }));
+  }
 
   const err = (key: ErrorKey) =>
     showErrors && errors[key] ? (
@@ -161,7 +194,7 @@ export default function RegistrationForm() {
 
     setStatus('saving');
     try {
-      await submitTutorialRegistration({ ...finalForm, subjects: selectedSubjects(finalForm) });
+      await submitTutorialRegistration(toEnquiry(finalForm));
       setStatus('saved');
       requestAnimationFrame(() =>
         document.getElementById('register')?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
@@ -208,28 +241,19 @@ export default function RegistrationForm() {
       <fieldset className="planner-step">
         <legend><span className="planner-num">1</span>Your details</legend>
         <div className="form-grid">
-          <div className={fieldClass('fullName')}>
+          <div className={`${fieldClass('fullName')} full-width`}>
             <label htmlFor="reg-fullName">Full name <span className="req">*</span></label>
             <input
-              id="reg-fullName" type="text" autoComplete="name" value={form.fullName}
+              id="reg-fullName" type="text" autoComplete="name" placeholder="e.g. Ada Okafor" value={form.fullName}
               onChange={(e) => set('fullName', e.target.value)}
               aria-invalid={Boolean(describedBy('fullName')) || undefined} aria-describedby={describedBy('fullName')}
             />
             {err('fullName')}
           </div>
-          <div className={fieldClass('phone')}>
-            <label htmlFor="reg-phone">Phone / WhatsApp number <span className="req">*</span></label>
-            <input
-              id="reg-phone" type="tel" autoComplete="tel" placeholder="e.g. +234 801 234 5678" value={form.phone}
-              onChange={(e) => set('phone', e.target.value)}
-              aria-invalid={Boolean(describedBy('phone')) || undefined} aria-describedby={describedBy('phone')}
-            />
-            {err('phone')}
-          </div>
           <div className={fieldClass('email')}>
             <label htmlFor="reg-email">Email address <span className="req">*</span></label>
             <input
-              id="reg-email" type="email" autoComplete="email" value={form.email}
+              id="reg-email" type="email" autoComplete="email" placeholder="e.g. ada@example.com" value={form.email}
               onChange={(e) => set('email', e.target.value)}
               aria-invalid={Boolean(describedBy('email')) || undefined} aria-describedby={describedBy('email')}
             />
@@ -237,15 +261,22 @@ export default function RegistrationForm() {
           </div>
           <div className={fieldClass('country')}>
             <label htmlFor="reg-country">Country <span className="req">*</span></label>
-            <input
-              id="reg-country" type="text" autoComplete="country-name" list="reg-country-list" value={form.country}
-              onChange={(e) => set('country', e.target.value)}
-              aria-invalid={Boolean(describedBy('country')) || undefined} aria-describedby={describedBy('country')}
+            <CountrySelect
+              id="reg-country" value={form.countryCode} onChange={chooseCountry}
+              invalid={Boolean(describedBy('country'))} describedBy={describedBy('country')}
             />
-            <datalist id="reg-country-list">
-              {COUNTRIES.map((c) => <option key={c} value={c} />)}
-            </datalist>
             {err('country')}
+          </div>
+          <div className={`${fieldClass('phone')} full-width`}>
+            <label htmlFor="reg-phone">Phone / WhatsApp number <span className="req">*</span></label>
+            <PhoneInput
+              id="reg-phone" required
+              country={form.phoneCountry}
+              onCountryChange={(code) => { setPhoneCodeChosen(true); set('phoneCountry', code); }}
+              value={form.phone} onChange={(v) => set('phone', v)}
+              invalid={Boolean(describedBy('phone'))} describedBy={describedBy('phone')}
+            />
+            {err('phone')}
           </div>
         </div>
       </fieldset>
