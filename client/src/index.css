@@ -1538,6 +1538,87 @@ a {
 }
 
 /* =====================================================
+   TOUCH AND SMALL-SCREEN UX (all pages)
+   ===================================================== */
+
+@media (max-width: 960px) {
+  /* Comfortable tap targets (about 44px) on touch-sized screens. */
+  .nav-toggle {
+    min-height: 44px;
+  }
+
+  .calculator-scale button {
+    min-height: 40px;
+    padding: 8px 16px;
+  }
+
+  .footer-col ul {
+    gap: 0;
+  }
+
+  .footer-col a,
+  .footer-policies a {
+    display: inline-block;
+    padding: 9px 0;
+  }
+
+  .footer-policies {
+    gap: 0 20px;
+  }
+
+  /* 16px text stops iPhone and iPad Safari zooming the page when a field is tapped;
+     44px height makes fields easy to hit with a thumb. */
+  .field input,
+  .field select,
+  .field textarea,
+  .calc-field input,
+  .planner-other input,
+  .phone-input input,
+  .picker-search,
+  .picker-trigger {
+    font-size: 16px;
+  }
+
+  .field input,
+  .field select,
+  .calc-field input,
+  .planner-other input,
+  .phone-input input,
+  .picker-trigger {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Call-to-action buttons fill the width when stacked, instead of looking lopsided. */
+  .btn:not(.btn-sm) {
+    width: 100%;
+  }
+
+  /* "Our approach": all three stages visible side by side, rather than one scrolled off-screen. */
+  .approach-tablist {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .approach-tab {
+    padding: 10px 6px 12px;
+    text-align: center;
+    justify-items: center;
+  }
+
+  .approach-tab-num {
+    font-size: 0.6875rem;
+  }
+
+  .approach-tab-title {
+    font-size: 0.9375rem;
+    line-height: 1.25;
+  }
+}
+
+/* =====================================================
    RESPONSIVE
    ===================================================== */
 

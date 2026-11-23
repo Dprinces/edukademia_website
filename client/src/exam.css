@@ -221,6 +221,7 @@
 
 .add-field .btn {
   flex-shrink: 0;
+  width: auto;
   padding: 9px 18px;
 }
 
