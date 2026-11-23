@@ -1,10 +1,3 @@
-const STATS = [
-  { num: '0.8+', label: 'Average CGPA improvement per student cohort' },
-  { num: '94%', label: 'Of students report improved confidence and focus' },
-  { num: '1:1', label: 'Personal coaching alongside group counselling' },
-  { num: '12 wk', label: 'Structured programme with measurable milestones' },
-];
-
 export default function Vision() {
   return (
     <section id="vision" className="section vision">
@@ -12,27 +5,36 @@ export default function Vision() {
         <div className="vision-grid">
           <div className="vision-text">
             <p className="eyebrow">About Edukademia</p>
-            <h2>Every student deserves both the grades and the growth to thrive.</h2>
+            <h2>Supporting learners from secondary school to life after graduation.</h2>
             <p>
-              Many students focus entirely on CGPA targets and neglect the
-              self-awareness, emotional intelligence and coping skills that shape
-              long-term success in their careers and their lives.
+              Edukademia is an academic and student development platform supporting learners
+              from secondary school through the transition into life after graduation.
             </p>
             <p>
-              Edukademia was founded on a simple belief: academic performance and
-              personal wellbeing are not in competition. With the right support,
-              each one strengthens the other.
+              Through academic coaching, mentorship, career guidance and school partnerships,
+              we help students develop stronger study habits, take ownership of their learning
+              and make informed decisions about their future.
             </p>
           </div>
 
-          <dl className="vision-stats">
-            {STATS.map((s) => (
-              <div className="stat" key={s.label}>
-                <dt className="stat-num">{s.num}</dt>
-                <dd className="stat-label">{s.label}</dd>
-              </div>
-            ))}
-          </dl>
+          <div className="mission-vision">
+            <article className="mv-card">
+              <h3>Our Mission</h3>
+              <p>
+                To raise excellent and purposeful students by helping them build the
+                knowledge, mindset and practical skills to excel academically, and by
+                connecting them with the guidance and support they need to pursue future
+                opportunities.
+              </p>
+            </article>
+            <article className="mv-card">
+              <h3>Our Vision</h3>
+              <p>
+                A generation of learners who take ownership of their education, pursue
+                excellence and move into life after school with confidence and purpose.
+              </p>
+            </article>
+          </div>
         </div>
       </div>
     </section>

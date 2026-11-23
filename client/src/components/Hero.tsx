@@ -1,69 +1,29 @@
-const QUICK_LINKS = [
-  {
-    href: '/cgpa-mentorship/',
-    audience: 'For students',
-    title: 'CGPA Mentorship',
-    meta: 'Applications open for the next cohort',
-  },
-  {
-    href: '/exam-preparation/',
-    audience: 'For secondary-school students',
-    title: 'Exam Preparation',
-    meta: 'WAEC, NECO, JAMB and English tests',
-  },
-  {
-    href: '/graduate-clarity/',
-    audience: 'For final-year students and graduates',
-    title: 'Graduate Clarity Programme',
-    meta: 'Clear direction for life after university',
-  },
-  {
-    href: '/school-partnership/',
-    audience: 'For schools and universities',
-    title: 'School Partnership',
-    meta: 'Tailored to your institution',
-  },
-];
-
 export default function Hero() {
   return (
     <section className="hero">
       <div className="hero-inner has-visual">
         <div className="hero-content">
-          <p className="eyebrow">CGPA mentorship and student counselling</p>
-          <h1>Academic excellence and personal growth, never treated separately.</h1>
+          <p className="eyebrow">Raising Excellent and Purposeful Students</p>
+          <h1>Academic excellence and personal growth go hand in hand.</h1>
           <p className="hero-lede">
-            Edukademia combines data-led CGPA mentorship with professional coaching
-            and counselling. We work with students directly and through partner schools.
+            Edukademia helps you build the knowledge, mindset and skills to do well in
+            school, with guidance to take your next step. Whether you’re preparing for an
+            examination, working to improve your grades or planning life after graduation,
+            there’s a programme for you.
           </p>
           <div className="hero-ctas">
-            <a href="/cgpa-mentorship/" className="btn btn-gold btn-lg">Explore CGPA Mentorship</a>
-            <a href="#method" className="btn btn-outline-light btn-lg">How we work</a>
+            <a href="#programmes" className="btn btn-gold btn-lg">Find your programme</a>
+            <a href="#vision" className="btn btn-outline-light btn-lg">About Edukademia</a>
           </div>
         </div>
 
-        <div className="hero-visual">
+        <div className="hero-visual hero-visual-plain">
           <img
             src="/cgpa/cgpa-mentorship-conversation.jpg"
             alt="A mentor reviewing a student's academic plan with her"
             width="1200"
             height="900"
           />
-          <nav className="hero-overlay quick-links" aria-label="Our programmes">
-            <p className="hero-overlay-title">Our programmes</p>
-            <ul>
-              {QUICK_LINKS.map((l) => (
-                <li key={l.href}>
-                  <a href={l.href}>
-                    <span className="quick-link-audience">{l.audience}</span>
-                    <span className="quick-link-title">{l.title}</span>
-                    <span className="quick-link-meta">{l.meta}</span>
-                    <span className="quick-link-arrow" aria-hidden="true" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
         </div>
       </div>
     </section>
