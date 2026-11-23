@@ -1,4 +1,5 @@
-import { COUNTRIES, examplePhone, type CountryCode } from '../../lib/countries';
+import { examplePhone, type CountryCode } from '../../lib/countries';
+import CountryPicker from './CountryPicker';
 
 interface CountrySelectProps {
   id: string;
@@ -9,23 +10,19 @@ interface CountrySelectProps {
   onBlur?: () => void;
 }
 
-/** Full country list. Nothing is pre-selected, because visitors come from many countries. */
+/** Searchable full country list. Nothing is pre-selected, because visitors come from many countries. */
 export function CountrySelect({ id, value, onChange, invalid, describedBy, onBlur }: CountrySelectProps) {
   return (
-    <select
+    <CountryPicker
       id={id}
+      mode="country"
       value={value}
-      autoComplete="country"
-      onChange={(e) => onChange(e.target.value as CountryCode | '')}
+      onChange={onChange}
+      placeholder="Select your country"
+      invalid={invalid}
+      describedBy={describedBy}
       onBlur={onBlur}
-      aria-invalid={invalid || undefined}
-      aria-describedby={describedBy}
-    >
-      <option value="">Select your country</option>
-      {COUNTRIES.map((c) => (
-        <option key={c.code} value={c.code}>{c.name}</option>
-      ))}
-    </select>
+    />
   );
 }
 
@@ -43,7 +40,7 @@ interface PhoneInputProps {
 }
 
 /**
- * International phone number: a dialling-code picker plus the local number.
+ * International phone number: a searchable dialling-code picker plus the local number.
  * Visitors can also type a full number starting with "+", which overrides the picker.
  */
 export function PhoneInput({
@@ -51,18 +48,15 @@ export function PhoneInput({
 }: PhoneInputProps) {
   return (
     <div className="phone-input">
-      <select
-        className="phone-code"
+      <CountryPicker
+        id={`${id}-code`}
+        mode="dial"
         value={country}
-        onChange={(e) => onCountryChange(e.target.value as CountryCode | '')}
-        aria-label="Country dialling code"
-        aria-invalid={invalid || undefined}
-      >
-        <option value="">Code</option>
-        {COUNTRIES.map((c) => (
-          <option key={c.code} value={c.code}>+{c.dialCode} {c.name}</option>
-        ))}
-      </select>
+        onChange={onCountryChange}
+        placeholder="Code"
+        ariaLabel="Country dialling code"
+        invalid={invalid}
+      />
       <input
         id={id}
         type="tel"
