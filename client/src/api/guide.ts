@@ -1,3 +1,4 @@
+import { emailSubmission } from './notify';
 import { USE_API, saveToSheet } from './sheets';
 
 export interface GuideRequest {
@@ -18,7 +19,14 @@ export const STATIC_GUIDE_URL = '/downloads/edukademia-academic-success-starter-
 
 export async function requestGuide(data: GuideRequest): Promise<{ downloadUrl: string; expires: boolean }> {
   if (!USE_API) {
-    await saveToSheet('guide', data);
+    try {
+      await saveToSheet('guide', data);
+    } catch {
+      // The visitor has completed the form, so they still get the guide; their details
+      // reach Edukademia by email instead of the sheet.
+      emailSubmission('guide', data as unknown as Record<string, unknown>, undefined,
+        'Could not be saved to the Google Sheet. Please add this request manually.');
+    }
     return { downloadUrl: STATIC_GUIDE_URL, expires: false };
   }
   const res = await fetch('/api/guide/request', {
