@@ -28,7 +28,12 @@ function readable(value: unknown): string {
   return String(value ?? '');
 }
 
-export function emailSubmission(form: SheetForm, data: Record<string, unknown>, ref?: string) {
+export function emailSubmission(
+  form: SheetForm,
+  data: Record<string, unknown>,
+  ref?: string,
+  note?: string,
+) {
   if (!ACCESS_KEY) return;
 
   const fields = Object.fromEntries(
@@ -39,20 +44,23 @@ export function emailSubmission(form: SheetForm, data: Record<string, unknown>, 
   const name = readable(data.fullName ?? data.schoolName ?? '');
   const email = readable(data.email ?? '');
 
-  // Fire-and-forget: the submission is already saved, so a failed email must not affect the visitor.
-  fetch('https://api.web3forms.com/submit', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({
-      access_key: ACCESS_KEY,
-      subject: `${SUBJECTS[form]}${name ? `: ${name}` : ''}${ref ? ` (${ref})` : ''}`,
-      from_name: 'Edukademia website',
-      // Reply in Gmail goes straight to the person who filled in the form.
-      ...(email ? { replyto: email } : {}),
-      ...(ref ? { Reference: ref } : {}),
-      ...fields,
-    }),
-  }).catch(() => {
+  const payload: Record<string, string> = {
+    access_key: ACCESS_KEY,
+    subject: `${SUBJECTS[form]}${name ? `: ${name}` : ''}${ref ? ` (${ref})` : ''}`,
+    from_name: 'Edukademia website',
+    // Reply in Gmail goes straight to the person who filled in the form.
+    ...(email ? { replyto: email } : {}),
+    ...(note ? { Note: note } : {}),
+    ...(ref ? { Reference: ref } : {}),
+    ...fields,
+  };
+
+  // Sent as an ordinary form post (FormData), not JSON: browsers then skip the CORS
+  // "preflight" check, which Web3Forms rejects in some browsers. Fire-and-forget, because
+  // the visitor's submission must never depend on the email.
+  const body = new FormData();
+  Object.entries(payload).forEach(([key, value]) => body.append(key, value));
+  fetch('https://api.web3forms.com/submit', { method: 'POST', body, keepalive: true }).catch(() => {
     /* non-blocking */
   });
 }

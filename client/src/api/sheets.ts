@@ -19,6 +19,18 @@ export interface SheetResult {
  * Appends a form submission to the Google Sheet via the Apps Script web app, then emails it
  * to Edukademia (see integrations/google-sheets/README.md).
  */
+async function postToSheet(url: string, payload: object): Promise<SheetResult> {
+  // text/plain keeps this a "simple" request, so no CORS preflight (which Apps Script can't answer).
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload),
+  });
+  const result = (await res.json().catch(() => null)) as SheetResult | null;
+  if (!res.ok || !result?.ok) throw new Error('sheet-save-failed');
+  return result;
+}
+
 export async function saveToSheet(form: SheetForm, data: object): Promise<SheetResult> {
   if (!SHEET_URL) {
     if (import.meta.env.DEV) {
@@ -28,14 +40,11 @@ export async function saveToSheet(form: SheetForm, data: object): Promise<SheetR
     throw new Error('not-configured');
   }
 
-  // text/plain keeps this a "simple" request, so no CORS preflight (which Apps Script can't answer).
-  const res = await fetch(SHEET_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ form, ...data }),
+  const result = await postToSheet(SHEET_URL, { form, ...data }).catch(async () => {
+    // One retry covers a momentary drop in a mobile connection.
+    await new Promise((r) => setTimeout(r, 1200));
+    return postToSheet(SHEET_URL, { form, ...data });
   });
-  const result = (await res.json().catch(() => null)) as SheetResult | null;
-  if (!res.ok || !result?.ok) throw new Error('sheet-save-failed');
   emailSubmission(form, data as Record<string, unknown>, result.ref);
   return result;
 }
