@@ -103,7 +103,7 @@ export const FEATURES = [
 export const FAQS: { q: string; a: string }[] = [
   {
     q: 'Who is the programme for?',
-    a: 'CGPA is designed for secondary-school students, undergraduates and other young learners who want to improve academically and prepare for future opportunities.',
+    a: 'CGPA is designed for exam candidates, undergraduates and other young learners who want to improve academically and prepare for future opportunities.',
   },
   {
     q: 'How do I join as a mentee?',

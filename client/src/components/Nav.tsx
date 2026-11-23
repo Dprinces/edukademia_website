@@ -37,6 +37,8 @@ export default function Nav({
   const dropdownRef = useRef<HTMLLIElement>(null);
 
   const inProgrammes = PROGRAMMES.some((p) => p.href === current);
+  // Every page except the home page gets a visible "Home" link (the logo alone isn't obvious).
+  const onHome = window.location.pathname === '/' || window.location.pathname === '/index.html';
 
   // Close the dropdown on outside click or Escape.
   useEffect(() => {
@@ -68,7 +70,7 @@ export default function Nav({
   return (
     <nav className={menuOpen ? 'site-nav nav-open' : 'site-nav'} aria-label="Main">
       <div className="nav-inner">
-        <a href="/" className="brand">
+        <a href="/" className="brand" aria-label="Edukademia home">
           <img src="/logo.png" alt="" className="brand-mark" width="44" height="44" />
           <span className="brand-name">Edukademia</span>
         </a>
@@ -86,8 +88,8 @@ export default function Nav({
 
         <div className="nav-menu" id="nav-menu">
           <ul className="nav-links">
+            {!onHome && <li><a href="/" onClick={closeAll}>Home</a></li>}
             <li><a href="/#vision" onClick={closeAll}>About</a></li>
-            <li><a href="/#method" onClick={closeAll}>Our approach</a></li>
             <li
               ref={dropdownRef}
               className={programmesOpen ? 'nav-dropdown is-open' : 'nav-dropdown'}

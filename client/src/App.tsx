@@ -1,10 +1,12 @@
 import Nav from './components/Nav';
 import Hero from './components/Hero';
 import Vision from './components/Vision';
-import Method from './components/Method';
+import Programmes from './components/Programmes';
 import GpaCalculator from './components/GpaCalculator';
 import Paths from './components/Paths';
 import Footer from './components/Footer';
+import BookingSection from './components/BookingSection';
+import WhatsAppButton from './components/WhatsAppButton';
 
 export default function App() {
   return (
@@ -13,11 +15,13 @@ export default function App() {
       <main>
         <Hero />
         <Vision />
-        <Method />
+        <Programmes />
         <GpaCalculator />
         <Paths />
+        <BookingSection />
       </main>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }

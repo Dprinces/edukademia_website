@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
+import BookingSection from './components/BookingSection';
+import WhatsAppButton from './components/WhatsAppButton';
 import Faq from './components/Faq';
 import SchoolHero from './components/school/SchoolHero';
 import Benefits from './components/school/Benefits';
@@ -24,8 +26,13 @@ export default function SchoolApp() {
         <Process />
         <EnquiryForm presetInterest={interest} />
         <Faq items={SCHOOL_FAQS} tinted />
+        <BookingSection
+          title="Prefer to talk it through first?"
+          intro="Book a video or phone call with our partnerships team at a time that suits you."
+        />
       </main>
       <Footer />
+      <WhatsAppButton message="Hello Edukademia! I'd like to discuss a school partnership." />
     </>
   );
 }

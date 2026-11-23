@@ -1,5 +1,6 @@
 import Nav from './components/Nav';
 import Footer from './components/Footer';
+import WhatsAppButton from './components/WhatsAppButton';
 import CgpaHero from './components/cgpa/CgpaHero';
 import FreeGuide from './components/cgpa/FreeGuide';
 import Audience from './components/cgpa/Audience';
@@ -31,6 +32,7 @@ export default function CgpaApp() {
         <ClosingCta />
       </main>
       <Footer />
+      <WhatsAppButton message="Hello Edukademia! I have a question about the CGPA Mentorship Programme." />
     </>
   );
 }

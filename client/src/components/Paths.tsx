@@ -29,7 +29,7 @@ const PATHS = [
       'TOEFL, IELTS, PTE, Duolingo English Test and Cambridge English',
       'Mathematics, English Language, the sciences and more',
       'Tutorials scheduled around your preferred days and times',
-      'Register in minutes and continue on WhatsApp',
+      'Register in minutes by filling the form',
     ],
     img: '/exam-prep/student-studying.jpg',
     imgPosition: 'center 40%',
