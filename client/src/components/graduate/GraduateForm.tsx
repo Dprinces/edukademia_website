@@ -169,7 +169,7 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
       <fieldset className="planner-step">
         <legend><span className="planner-num">1</span>Your details</legend>
         <div className="form-grid">
-          <div className={invalid('fullName') ? 'field invalid' : 'field'}>
+          <div className={invalid('fullName') ? 'field full-width invalid' : 'field full-width'}>
             <label htmlFor="grad-fullName">Full name <span className="req">*</span></label>
             <input id="grad-fullName" type="text" autoComplete="name" placeholder="e.g. Ada Okafor" value={form.fullName}
               onChange={(e) => set('fullName', e.target.value)} {...aria('fullName')} />
@@ -189,7 +189,7 @@ export default function GraduateForm({ selectedQuestions, onToggleQuestion }: Gr
             />
             {err('country')}
           </div>
-          <div className={invalid('phone') ? 'field invalid' : 'field'}>
+          <div className={invalid('phone') ? 'field full-width invalid' : 'field full-width'}>
             <label htmlFor="grad-phone">Phone / WhatsApp number <span className="req">*</span></label>
             <PhoneInput
               id="grad-phone" required

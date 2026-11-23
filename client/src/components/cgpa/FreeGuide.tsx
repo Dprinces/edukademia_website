@@ -169,7 +169,20 @@ export default function FreeGuide() {
                     {fieldError('email')}
                   </div>
 
-                  <div className={invalid('phone')}>
+                  <div className={`${invalid('level')} full-width`}>
+                    <label htmlFor="guide-level">I am a <span className="req">*</span></label>
+                    <select
+                      id="guide-level" name="level" value={form.level} onChange={update}
+                      aria-invalid={Boolean(showErrors && errors.level) || undefined}
+                      aria-describedby={showErrors && errors.level ? 'guide-level-error' : undefined}
+                    >
+                      <option value="">Select an option</option>
+                      {LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
+                    </select>
+                    {fieldError('level')}
+                  </div>
+
+                  <div className={`${invalid('phone')} full-width`}>
                     <label htmlFor="guide-phone">WhatsApp number <span className="optional">(optional)</span></label>
                     <PhoneInput
                       id="guide-phone"
@@ -181,19 +194,6 @@ export default function FreeGuide() {
                       describedBy={showErrors && errors.phone ? 'guide-phone-error' : undefined}
                     />
                     {fieldError('phone')}
-                  </div>
-
-                  <div className={invalid('level')}>
-                    <label htmlFor="guide-level">I am a <span className="req">*</span></label>
-                    <select
-                      id="guide-level" name="level" value={form.level} onChange={update}
-                      aria-invalid={Boolean(showErrors && errors.level) || undefined}
-                      aria-describedby={showErrors && errors.level ? 'guide-level-error' : undefined}
-                    >
-                      <option value="">Select an option</option>
-                      {LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
-                    </select>
-                    {fieldError('level')}
                   </div>
                 </div>
 

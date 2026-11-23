@@ -241,7 +241,7 @@ export default function RegistrationForm() {
       <fieldset className="planner-step">
         <legend><span className="planner-num">1</span>Your details</legend>
         <div className="form-grid">
-          <div className={fieldClass('fullName')}>
+          <div className={`${fieldClass('fullName')} full-width`}>
             <label htmlFor="reg-fullName">Full name <span className="req">*</span></label>
             <input
               id="reg-fullName" type="text" autoComplete="name" placeholder="e.g. Ada Okafor" value={form.fullName}
@@ -267,7 +267,7 @@ export default function RegistrationForm() {
             />
             {err('country')}
           </div>
-          <div className={fieldClass('phone')}>
+          <div className={`${fieldClass('phone')} full-width`}>
             <label htmlFor="reg-phone">Phone / WhatsApp number <span className="req">*</span></label>
             <PhoneInput
               id="reg-phone" required

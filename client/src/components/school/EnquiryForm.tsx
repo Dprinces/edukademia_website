@@ -202,7 +202,7 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
                   {error('country')}
                 </div>
 
-                <div className={fieldClass('phone')}>
+                <div className={fieldClass('phone', true)}>
                   <label htmlFor="enq-phone">Phone number <span className="req">*</span></label>
                   <PhoneInput
                     id="enq-phone" required
