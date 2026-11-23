@@ -1372,9 +1372,11 @@ pre.planner-message {
     gap: 32px;
   }
 
+  /* Stacked: text above full-width buttons, without the desktop gap. */
   .closing-inner {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 28px;
   }
 }
 
@@ -1411,6 +1413,10 @@ pre.planner-message {
   }
 
   .cgpa-closing {
-    padding: 56px 16px;
+    padding: 48px 16px 56px;
+  }
+
+  .cgpa-closing h2 {
+    font-size: 1.75rem;
   }
 }
