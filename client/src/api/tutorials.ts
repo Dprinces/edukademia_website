@@ -1,4 +1,4 @@
-import { isSheetConfigured, saveToSheet } from './sheets';
+import { USE_API, saveToSheet } from './sheets';
 
 export interface TutorialEnquiry {
   fullName: string;
@@ -18,8 +18,6 @@ export interface TutorialEnquiry {
   website: string;
 }
 
-const USE_API = import.meta.env.VITE_TUTORIALS_USE_API === 'true';
-
 async function saveToApi(data: TutorialEnquiry) {
   const res = await fetch('/api/tutorials/enquiry', {
     method: 'POST',
@@ -29,16 +27,8 @@ async function saveToApi(data: TutorialEnquiry) {
   if (!res.ok) throw new Error('api-save-failed');
 }
 
-/**
- * Saves a tutorial registration. The Google Sheet is the record of truth for now;
- * the API copy is optional and never blocks the visitor when the sheet succeeds.
- */
+/** Saves a tutorial registration: Google Sheet for now, backend API once VITE_USE_API is on. */
 export async function submitTutorialRegistration(data: TutorialEnquiry) {
-  if (USE_API && !isSheetConfigured) {
-    await saveToApi(data);
-    return;
-  }
-
-  await saveToSheet('tutorials', data);
-  if (USE_API) saveToApi(data).catch(() => { /* secondary copy */ });
+  if (USE_API) await saveToApi(data);
+  else await saveToSheet('tutorials', data);
 }

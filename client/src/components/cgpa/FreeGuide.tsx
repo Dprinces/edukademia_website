@@ -64,6 +64,7 @@ export default function FreeGuide() {
   const [form, setForm] = useState<GuideRequest>(loadSaved);
   const [showErrors, setShowErrors] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('');
+  const [linkExpires, setLinkExpires] = useState(false);
   const [phoneCountry, setPhoneCountry] = useState<CountryCode | ''>('');
 
   const errors = validate(form, phoneCountry);
@@ -82,12 +83,18 @@ export default function FreeGuide() {
     setStatus('submitting');
     try {
       const details = { ...form, phone: form.phone.trim() ? formatPhone(form.phone, phoneCountry) : '' };
-      const { downloadUrl: url } = await requestGuide(details);
+      const { downloadUrl: url, expires } = await requestGuide(details);
       save(details);
       setDownloadUrl(url);
+      setLinkExpires(expires);
       setStatus('ready');
-      // The server responds with Content-Disposition: attachment, so the page stays put.
-      window.location.assign(url);
+      // Download without leaving the page.
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Edukademia-Academic-Success-Starter-Guide.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     } catch (err) {
       setStatus(err instanceof Error && err.message === 'rate-limited' ? 'rate-limited' : 'error');
     }
@@ -138,8 +145,8 @@ export default function FreeGuide() {
               <div className="guide-ready" role="status">
                 <p className="guide-ready-title">Thank you, {form.fullName.split(' ')[0]}. Your download has started.</p>
                 <p>
-                  If it didn’t start, <a href={downloadUrl}>download the guide here</a>. The link
-                  works for one hour.
+                  If it didn’t start, <a href={downloadUrl} download>download the guide here</a>.
+                  {linkExpires && ' The link works for one hour.'}
                 </p>
               </div>
             )}

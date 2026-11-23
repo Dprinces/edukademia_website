@@ -17,7 +17,7 @@ client/          React + TypeScript + Vite (multi-page static site)
 server/          Express + MongoDB API (enquiries, free-guide downloads)
   assets/                  Free guide PDF (served only after the guide form)
 integrations/
-  google-sheets/           Apps Script that saves the exam and graduate forms to a Google Sheet
+  google-sheets/           Apps Script that saves every form to a Google Sheet and emails it
 ```
 
 ## Getting started
@@ -47,8 +47,8 @@ Run one side only with `npm run dev -w client` or `npm run dev -w server`.
 
 | Variable | Purpose |
 | --- | --- |
-| `VITE_FORMS_SHEET_URL` | Apps Script web app URL for the exam and graduate forms ([setup](integrations/google-sheets/README.md)) |
-| `VITE_TUTORIALS_USE_API` | `true` to also save exam registrations through the API |
+| `VITE_FORMS_SHEET_URL` | Apps Script web app URL that saves every form to a Google Sheet and emails it ([setup](integrations/google-sheets/README.md)) |
+| `VITE_USE_API` | `true` once the backend is live, to send every form to the API instead |
 
 Never commit `.env` files. They are ignored by `.gitignore`.
 
@@ -59,13 +59,15 @@ npm run build        # builds server (server/dist) and client (client/dist)
 ```
 
 `client/dist` is a static site with one folder per page, deployable to Netlify, Vercel,
-Cloudflare Pages or similar. The API must be hosted separately and reachable at `/api`
-(for example through a proxy or rewrite rule) for these features:
+Cloudflare Pages or similar.
 
-- School partnership enquiry form
-- Free guide download on the CGPA page
+**Forms, for now:** every form (exam, graduate, school enquiry, free guide) is saved to a
+Google Sheet and emailed to Edukademia once `VITE_FORMS_SHEET_URL` is set, so the site can
+go live without the API. The free guide is then a static file revealed after the form.
 
-The exam-preparation and graduate-clarity forms work without the API once `VITE_FORMS_SHEET_URL` is set.
+**Later:** host the API separately, reachable at `/api` (for example through a proxy or
+rewrite rule), and set `VITE_USE_API=true`. Forms then go to MongoDB, and the free guide is
+served through signed links that expire after an hour.
 
 ## Content
 

@@ -160,7 +160,7 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
                 Thank you for your interest. A partnership manager will contact you
                 within two business days to discuss how we can support your students.
               </p>
-              <p className="success-ref">Reference: <strong>{refCode}</strong></p>
+              {refCode && <p className="success-ref">Reference: <strong>{refCode}</strong></p>}
             </div>
           ) : (
             <form onSubmit={handleSubmit} noValidate>

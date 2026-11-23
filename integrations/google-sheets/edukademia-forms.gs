@@ -1,9 +1,11 @@
 /**
  * Edukademia: website form submissions → Google Sheet
  *
- * Handles every form that posts to the spreadsheet, each in its own tab:
+ * Handles every website form, each in its own tab, and emails each submission:
  *   - "tutorials"         → Exam registrations   (/exam-preparation/)
  *   - "graduate-clarity"  → Graduate clarity     (/graduate-clarity/)
+ *   - "school"            → School enquiries     (/school-partnership/)
+ *   - "guide"             → Free guide requests  (/cgpa-mentorship/)
  *
  * Paste this into Extensions → Apps Script of the registrations spreadsheet,
  * then deploy it as a web app (see README.md in this folder).
@@ -11,6 +13,15 @@
 
 /** Who gets an email for each new submission. Set to '' to turn notifications off. */
 const NOTIFY_EMAIL = 'edukademia1@gmail.com';
+
+/** Readable labels for the free-guide "I am a" options. */
+const GUIDE_LEVELS = {
+  'secondary-school': 'Secondary school student',
+  undergraduate: 'Undergraduate',
+  postgraduate: 'Postgraduate',
+  'parent-guardian': 'Parent or guardian',
+  other: 'Other',
+};
 
 const FORMS = {
   tutorials: {
@@ -51,6 +62,37 @@ const FORMS = {
       ['Notes', (d) => clean(d.notes)],
     ],
   },
+  school: {
+    sheetName: 'School enquiries',
+    label: 'School partnership enquiry',
+    refPrefix: 'SCH-',
+    required: ['schoolName', 'contactName', 'role', 'email', 'country', 'phone', 'studentCount', 'interest'],
+    requiredLists: [],
+    columns: [
+      ['Institution', (d) => clean(d.schoolName)],
+      ['Contact person', (d) => clean(d.contactName)],
+      ['Role', (d) => clean(d.role)],
+      ['Email', (d) => clean(d.email)],
+      ['Country', (d) => clean(d.country)],
+      ['Phone', (d) => clean(d.phone)],
+      ['Approx. students', (d) => clean(d.studentCount)],
+      ['Support interested in', (d) => clean(d.interest)],
+      ['Message', (d) => clean(d.message)],
+    ],
+  },
+  guide: {
+    sheetName: 'Free guide requests',
+    label: 'Free guide request',
+    required: ['fullName', 'email', 'level'],
+    requiredLists: [],
+    columns: [
+      ['Full name', (d) => clean(d.fullName)],
+      ['Email', (d) => clean(d.email)],
+      ['WhatsApp', (d) => clean(d.phone)],
+      ['I am a', (d) => GUIDE_LEVELS[d.level] || clean(d.level)],
+      ['Agreed to updates', (d) => (d.marketingConsent === true ? 'Yes' : 'No')],
+    ],
+  },
 };
 
 function doPost(e) {
@@ -70,10 +112,11 @@ function doPost(e) {
       form.requiredLists.some((k) => !list(data[k]).length);
     if (missing) return json({ ok: false, error: 'missing-fields' });
 
+    const ref = form.refPrefix ? reference(form.refPrefix) : '';
     const values = form.columns.map(([, get]) => get(data));
-    sheet(form).appendRow([new Date(), ...values]);
-    notify(form, values);
-    return json({ ok: true });
+    sheet(form).appendRow([new Date(), ...(ref ? [ref] : []), ...values]);
+    notify(form, values, ref, clean(data.email));
+    return json(ref ? { ok: true, ref } : { ok: true });
   } catch (err) {
     console.error(err);
     return json({ ok: false, error: 'server-error' });
@@ -91,7 +134,7 @@ function sheet(form) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sh = ss.getSheetByName(form.sheetName) || ss.insertSheet(form.sheetName);
   if (sh.getLastRow() === 0) {
-    const headers = ['Submitted at', ...form.columns.map(([header]) => header)];
+    const headers = ['Submitted at', ...(form.refPrefix ? ['Reference'] : []), ...form.columns.map(([header]) => header)];
     sh.appendRow(headers);
     sh.getRange(1, 1, 1, headers.length).setFontWeight('bold');
     sh.setFrozenRows(1);
@@ -99,10 +142,23 @@ function sheet(form) {
   return sh;
 }
 
-function notify(form, values) {
+function notify(form, values, ref, replyTo) {
   if (!NOTIFY_EMAIL) return;
-  const body = form.columns.map(([header], i) => `${header}: ${values[i]}`).join('\n');
-  MailApp.sendEmail(NOTIFY_EMAIL, `New ${form.label}: ${values[0]}`, body);
+  // Drop the leading apostrophe that only exists to stop Sheets reading "+234…" as a formula.
+  const lines = form.columns.map(([header], i) => `${header}: ${String(values[i]).replace(/^'/, '')}`);
+  if (ref) lines.unshift(`Reference: ${ref}`, '');
+  MailApp.sendEmail({
+    to: NOTIFY_EMAIL,
+    subject: `New ${form.label}: ${values[0]}${ref ? ` (${ref})` : ''}`,
+    body: lines.join('\n'),
+    // Pressing Reply in Gmail answers the person who filled in the form.
+    replyTo: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo) ? replyTo : NOTIFY_EMAIL,
+  });
+}
+
+/** Short, human-friendly reference such as SCH-LX3K9A2F. */
+function reference(prefix) {
+  return prefix + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 5).toUpperCase();
 }
 
 /**

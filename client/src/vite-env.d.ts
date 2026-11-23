@@ -1,10 +1,10 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** Google Apps Script web app URL that saves form submissions (exam and graduate) to a Google Sheet. */
+  /** Google Apps Script web app URL that saves every website form to a Google Sheet and emails it. */
   readonly VITE_FORMS_SHEET_URL?: string;
-  /** Set to "true" to also store tutorial registrations through the Edukademia API. */
-  readonly VITE_TUTORIALS_USE_API?: string;
+  /** Set to "true" once the backend is live, to send every form to the Edukademia API instead. */
+  readonly VITE_USE_API?: string;
 }
 
 interface ImportMeta {

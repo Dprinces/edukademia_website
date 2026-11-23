@@ -1,14 +1,19 @@
 # Website forms → Google Sheet
 
-Until the backend database is live, these forms are saved as rows in one Google Sheet,
-each in its own tab:
+Until the backend database is live, every website form is saved as a row in one Google
+Sheet, each in its own tab, and emailed to edukademia1@gmail.com:
 
 | Form | Page | Tab |
 | --- | --- | --- |
 | Exam preparation registration | `/exam-preparation/#register` | Exam registrations |
 | Graduate Next-Phase Clarity registration | `/graduate-clarity/#register` | Graduate clarity |
+| School partnership enquiry | `/school-partnership/#enquiry` | School enquiries |
+| Free guide request | `/cgpa-mentorship/#guide` | Free guide requests |
 
-A short Apps Script receives each submission and appends it. It can also email a notification.
+A short Apps Script receives each submission, appends it to the right tab and emails it.
+In the email, **Reply** goes straight to the person who filled in the form. School
+enquiries also get a reference number (e.g. `SCH-LX3K9A2F`), shown to the school and
+stored in the sheet.
 
 Set this up once, signed in as **edukademia1@gmail.com**. It takes about 5 minutes.
 
@@ -45,7 +50,7 @@ VITE_FORMS_SHEET_URL=https://script.google.com/macros/s/XXXX/exec
 - **Locally:** put it in `client/.env.local`, then restart `npm run dev`.
 - **Hosting (Netlify, Vercel, etc.):** add it in the site's environment variables, then redeploy.
 
-Each form's first submission creates its tab with headings. One URL serves both forms.
+Each form's first submission creates its tab with headings. One URL serves every form.
 
 ## Updating the script later
 
@@ -55,8 +60,9 @@ deployment* instead gives a new URL, and the website would then need updating.
 
 ## When the backend is ready
 
-Set `VITE_TUTORIALS_USE_API=true` to also save registrations to MongoDB through
-`/api/tutorials/enquiry`. Both destinations can run side by side during the switch-over.
+Set `VITE_USE_API=true` in the client settings and redeploy. Every form then goes to the
+API and MongoDB instead, and the free guide is served through signed links that expire
+after an hour. The Google Sheet stays as a record of everything received before the switch.
 
 ## Privacy
 
