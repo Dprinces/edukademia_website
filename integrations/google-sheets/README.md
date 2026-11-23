@@ -1,4 +1,4 @@
-# Website forms → Google Sheet
+# Website forms → Google Sheet + Gmail
 
 Until the backend database is live, every website form is saved as a row in one Google
 Sheet, each in its own tab, and emailed to edukademia1@gmail.com:
@@ -10,10 +10,15 @@ Sheet, each in its own tab, and emailed to edukademia1@gmail.com:
 | School partnership enquiry | `/school-partnership/#enquiry` | School enquiries |
 | Free guide request | `/cgpa-mentorship/#guide` | Free guide requests |
 
-A short Apps Script receives each submission, appends it to the right tab and emails it.
-In the email, **Reply** goes straight to the person who filled in the form. School
-enquiries also get a reference number (e.g. `SCH-LX3K9A2F`), shown to the school and
-stored in the sheet.
+Two pieces work together:
+
+- **Google Sheet (Apps Script):** saves each submission to the right tab. The script can
+  only edit this one spreadsheet. School enquiries get a reference number (e.g.
+  `SCH-LX3K9A2F`), shown to the school and stored in the sheet.
+- **Email (Web3Forms):** once the sheet confirms the save, the website emails the
+  submission to edukademia1@gmail.com. **Reply** in Gmail goes straight to the person who
+  filled in the form. Emails come from the website rather than the script because some
+  Google accounts block scripts that ask to send email ("This app is blocked").
 
 Set this up once, signed in as **edukademia1@gmail.com**. It takes about 5 minutes.
 
@@ -23,57 +28,57 @@ Set this up once, signed in as **edukademia1@gmail.com**. It takes about 5 minut
 2. In the sheet, open **Extensions → Apps Script**. Create the script from inside the sheet
    like this, not as a separate project at script.google.com.
 3. Delete the sample code, paste in the contents of
-   [`edukademia-forms.gs`](./edukademia-forms.gs), and save.
-4. Limit the script's permissions (this avoids Google's "This app is blocked" message):
+   [`edukademia-forms.gs`](./edukademia-forms.gs), and save (Ctrl + S).
+4. Limit the script's permissions:
    - Click **Project Settings** (gear icon) and tick
      **Show "appsscript.json" manifest file in editor**.
    - Back in **Editor**, open `appsscript.json`, replace everything in it with
      [`appsscript.json`](./appsscript.json) from this folder, and save.
 
-   The script can then only use **this one spreadsheet** and **send email**. It can't
-   read your Gmail, Drive or other sheets.
-5. Optional: change `NOTIFY_EMAIL` at the top of the script. It defaults to
-   edukademia1@gmail.com. Set it to `''` to turn email notifications off.
+   The script then has a single permission: editing **this one spreadsheet**.
 
 ## 2. Authorise it, then deploy it as a web app
 
-1. In the editor's toolbar, choose the **setup** function and click **Run**.
-2. Approve the permission prompts. Google says the app is unverified, which is
-   expected for your own script: choose **Advanced → Go to … (unsafe)** and **Allow**.
-   `setup` creates all four tabs and sends a test email to `NOTIFY_EMAIL`.
-3. Click **Deploy → New deployment**. Under **Select type**, choose **Web app**.
-4. Set **Execute as** to **Me (edukademia1@gmail.com)** and **Who has access** to
+1. In the left sidebar, click the code file (**Code.gs**). The toolbar with **Run** only
+   appears when a `.gs` file is open, not `appsscript.json`.
+2. In the toolbar above the code, choose **setup** in the function list and click **Run**.
+3. Approve the permission prompt. If Google says the app is unverified, choose
+   **Advanced → Go to … (unsafe)** and **Allow**. `setup` creates all four tabs.
+4. Click **Deploy → New deployment**. Under **Select type**, choose **Web app**.
+5. Set **Execute as** to **Me (edukademia1@gmail.com)** and **Who has access** to
    **Anyone**. This lets the website add rows; the sheet itself stays private.
-5. Click **Deploy** and copy the **Web app URL**. It ends in `/exec`.
+6. Click **Deploy** and copy the **Web app URL**. It ends in `/exec`.
 
 Check it works: open the URL in a browser. You should see
 `{"ok":true,"service":"edukademia-forms",...}`.
 
 ### If Google still says "This app is blocked"
 
-Google sometimes blocks every unverified script on certain accounts, with no way to
-continue. Check these in order:
+With only the spreadsheet permission this is rare. If it happens:
 
-1. **Advanced Protection:** if the account is enrolled in Google's Advanced Protection
-   Program (myaccount.google.com/security), unverified scripts can't be authorised. Use a
-   different Google account for the sheet, or leave the programme.
-2. **Signed into several Google accounts:** sign out of the others, or use a private
-   window signed into edukademia1@gmail.com only, and try **Run → setup** again.
-3. **Use the sheet without script emails.** If the block remains:
-   - Set `const NOTIFY_EMAIL = '';` at the top of the script.
-   - In `appsscript.json`, delete the `script.send_mail` line, leaving only
-     `spreadsheets.currentonly`, the lowest permission an Apps Script can have.
-   - Run **setup** and deploy as above.
-   - In the spreadsheet, open **Tools → Notification settings → Edit notifications** and
-     choose **Any changes are made** and **Email – right away**. Google Sheets then emails
-     edukademia1@gmail.com when a submission arrives, using its own built-in notifications.
+1. **Signed into several Google accounts:** use a private window signed into
+   edukademia1@gmail.com only and run **setup** again.
+2. **Advanced Protection:** accounts enrolled in Google's Advanced Protection Program
+   (myaccount.google.com/security) can't authorise any unverified script. Create the sheet
+   in a different Google account and share it with edukademia1@gmail.com.
 
-## 3. Connect the website
+## 3. Turn on email notifications (Web3Forms)
 
-Set the URL as an environment variable for the client:
+1. Go to **web3forms.com**, enter **edukademia1@gmail.com** and request an access key.
+2. Open the email from Web3Forms and copy the **access key**.
+3. Set it as `VITE_WEB3FORMS_KEY` (next section). The key can only send to the inbox it
+   was created for, so it's safe to include in the website.
+
+The free plan covers 250 emails a month. If notifications ever stop, check the Web3Forms
+dashboard. Submissions are still saved in the sheet either way.
+
+## 4. Connect the website
+
+Set both values as environment variables for the client:
 
 ```
 VITE_FORMS_SHEET_URL=https://script.google.com/macros/s/XXXX/exec
+VITE_WEB3FORMS_KEY=your-web3forms-access-key
 ```
 
 - **Locally:** put it in `client/.env.local`, then restart `npm run dev`.

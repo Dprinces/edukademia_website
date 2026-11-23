@@ -1,3 +1,5 @@
+import { emailSubmission } from './notify';
+
 /** Which tab of the forms spreadsheet a submission belongs to. */
 export type SheetForm = 'tutorials' | 'graduate-clarity' | 'school' | 'guide';
 
@@ -14,8 +16,8 @@ export interface SheetResult {
 }
 
 /**
- * Appends a form submission to the Google Sheet via the Apps Script web app, which also
- * emails it to Edukademia (see integrations/google-sheets/README.md).
+ * Appends a form submission to the Google Sheet via the Apps Script web app, then emails it
+ * to Edukademia (see integrations/google-sheets/README.md).
  */
 export async function saveToSheet(form: SheetForm, data: object): Promise<SheetResult> {
   if (!SHEET_URL) {
@@ -34,5 +36,6 @@ export async function saveToSheet(form: SheetForm, data: object): Promise<SheetR
   });
   const result = (await res.json().catch(() => null)) as SheetResult | null;
   if (!res.ok || !result?.ok) throw new Error('sheet-save-failed');
+  emailSubmission(form, data as Record<string, unknown>, result.ref);
   return result;
 }

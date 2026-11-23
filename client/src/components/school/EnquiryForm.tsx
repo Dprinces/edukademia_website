@@ -122,6 +122,8 @@ export default function EnquiryForm({ presetInterest }: EnquiryFormProps) {
         ...form,
         country: countryName(form.country as CountryCode),
         phone: formatPhone(form.phone, phoneCountry),
+        // Readable option name ("Full partnership") rather than its internal id.
+        interest: OPTIONS.find((o) => o.id === form.interest)?.name ?? 'Not sure yet',
       });
       setRefCode(result.ref);
       setStatus('success');

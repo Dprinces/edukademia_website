@@ -14,8 +14,12 @@
  * web app (see README.md). "@OnlyCurrentDoc" limits access to this one spreadsheet.
  */
 
-/** Who gets an email for each new submission. Set to '' to turn notifications off. */
-const NOTIFY_EMAIL = 'edukademia1@gmail.com';
+/**
+ * Email from the script itself. Off by default: the website emails each submission through
+ * Web3Forms instead, because some Google accounts block scripts that ask to send email.
+ * To use it, set an address here AND add the script.send_mail scope to appsscript.json.
+ */
+const NOTIFY_EMAIL = '';
 
 /** Readable labels for the free-guide "I am a" options. */
 const GUIDE_LEVELS = {
